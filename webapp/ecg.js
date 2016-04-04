@@ -36,9 +36,32 @@ var adx_ecg = {
     InitCanvas : function () { 
         var canvas = this.ECGCanvas();
         var parent = canvas.parent();
+		
+		parent.find(".ECGChooseFile").change(function() {
+			alert("change");
+			var input = event.target;
+			var reader = new FileReader();
+			reader.onload = function(){
+				var text = reader.result;
+				//TODO: load data into SignalData array for drawing
+				console.log(reader.result.substring(0, 200));
+			};
+			reader.readAsText(input.files[0]);
+		});
+		
+		parent.find(".BtnOpenECG").off("click").on( "click", function() {
+			var fileApi = !!(window.File && window.FileReader && window.FileList && window.Blob);
+			if(fileApi)
+				parent.find(".ECGChooseFile").click();
+			else
+				console.log("File API not supported.");
+		});
+		
         var context = canvas.get(0).getContext("2d");
-        context.canvas.width = parent.outerWidth() - (canvas.css("marginLeft").replace('px', '') * 2) - 5;
-        context.canvas.height = parent.outerHeight() - (canvas.css("marginTop").replace('px', '') * 2) - 5;
+        context.canvas.width = parent.outerWidth() 
+			- (canvas.css("marginLeft").replace('px', '') * 2) - 5;
+        context.canvas.height = parent.outerHeight() 
+			- (canvas.css("marginTop").replace('px', '') * 2) - 5;
         this.Paint();
     },
 
