@@ -4,9 +4,19 @@
 
 //Declare functions
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void AddMenus(HWND);
+void LoadSignalData(char* fileName, long* signalArray, int maxNum);
+void DrawSignalPanel(HDC hdc, HWND hwnd);
 void DrawGridLines(HDC hdc, HWND hwnd, int interval);
 void DrawSignal(HDC hdc, HWND hwnd);
-void LoadSignalData(char* fileName, long* signalArray, int maxNum);
+
+#define IDM_FILE_NEW 1
+#define IDM_FILE_OPEN 2
+#define IDM_FILE_QUIT 3
+
+long signalBuffer[10000];
+int maxSamples = 128;
+int signalLoaded = 0;
 
 /*  WinMain(), our entry point  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int iCmdShow) {
@@ -14,8 +24,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine
     static char szAppName[] = "ECGViewer";
     HWND        hwnd;
     MSG         msg;
-    WNDCLASSEX  wndclass;
-
+    WNDCLASSEX  wndclass;        
+    
     /*  Fill in WNDCLASSEX struct members  */
     wndclass.cbSize         = sizeof(wndclass);
     wndclass.style          = CS_HREDRAW | CS_VREDRAW;
@@ -59,33 +69,60 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 
     PAINTSTRUCT ps;
     HDC         hdc;
-    HPEN	hBigGridPen;
-    HPEN	hSmallGridPen;
-    HPEN	hSignalPen;
+
+    /*  Switch according to what type of message we have received  */
+    switch ( iMsg ) {
+    
+        case WM_CREATE:
+            AddMenus(hwnd);
+            break;
+        
+        case WM_PAINT:
+            hdc = BeginPaint(hwnd, &ps);
+            DrawSignalPanel(hdc, hwnd);
+            EndPaint(hwnd, &ps);
+            return 0;
+        
+        case WM_COMMAND:
+            switch(LOWORD(wParam)) {
+                case IDM_FILE_NEW:
+                    printf("File new / open\n");
+                    break;
+                case IDM_FILE_OPEN:
+                    LoadSignalData("C:\\temp\\testdata.txt", signalBuffer, maxSamples);
+                    RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+                    break;
+                case IDM_FILE_QUIT:
+                    SendMessage(hwnd, WM_CLOSE, 0, 0);
+                    break;
+            }
+            return 0;
+        
+        case WM_DESTROY:
+            /*  Window has been destroyed, so exit cleanly  */
+            PostQuitMessage(0);
+            return 0;
+    }
+    /*  Send any messages we don't handle to default window procedure  */
+    return DefWindowProc(hwnd, iMsg, wParam, lParam);
+}
+
+void DrawSignalPanel(HDC hdc, HWND hwnd){
+    
+    HPEN    hBigGridPen;
+    HPEN    hSmallGridPen;
+    HPEN    hSignalPen;    
     
     hSmallGridPen = CreatePen(PS_SOLID, 1, RGB(255, 192, 192));
     hBigGridPen = CreatePen(PS_SOLID, 1, RGB(240, 128, 128));
     hSignalPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-
-    /*  Switch according to what type of message we have received  */
-    switch ( iMsg ) {
-        case WM_PAINT:
-            /*  Receive WM_PAINT every time window is updated  */
-            hdc = BeginPaint(hwnd, &ps);
-            SelectObject(hdc, hSmallGridPen); DrawGridLines(hdc, hwnd, 10);
-            SelectObject(hdc, hBigGridPen); DrawGridLines(hdc, hwnd, 50);
-            SelectObject(hdc, hSignalPen); DrawSignal(hdc, hwnd);
-            EndPaint(hwnd, &ps);
-            return 0;
-	      
-         case WM_DESTROY:
-            /*  Window has been destroyed, so exit cleanly  */
-            PostQuitMessage(0);
-	    return 0;
-    }
-
-    /*  Send any messages we don't handle to default window procedure  */
-    return DefWindowProc(hwnd, iMsg, wParam, lParam);
+    
+    SelectObject(hdc, hSmallGridPen); 
+    DrawGridLines(hdc, hwnd, 10);
+    SelectObject(hdc, hBigGridPen); 
+    DrawGridLines(hdc, hwnd, 50);
+    SelectObject(hdc, hSignalPen); 
+    DrawSignal(hdc, hwnd);
 }
 
 void DrawGridLines(HDC hdc, HWND hwnd, int interval){
@@ -97,7 +134,7 @@ void DrawGridLines(HDC hdc, HWND hwnd, int interval){
         
         int windowWidth = rect.right - rect.left;
         int windowHeight = rect.bottom - rect.top;
-		
+        
         //Vertical lines
         for(int i = 0; i*interval < windowWidth; i++){
             points[0].x = interval * i;
@@ -106,7 +143,7 @@ void DrawGridLines(HDC hdc, HWND hwnd, int interval){
             points[1].y = windowHeight;
             Polyline(hdc, points, 2);
         }
-		
+        
         //Horizontal lines
         for(int i = 0; i*interval < windowHeight; i++){
             points[0].x = 0;
@@ -122,62 +159,77 @@ void DrawSignal(HDC hdc, HWND hwnd){
 
     POINT points[2];
     RECT rect;
-
-    long signalBuffer[10000];
-	int maxSamples = 128;
-    LoadSignalData("C:\\temp\\testdata.txt", signalBuffer, maxSamples);    
-	
+    
+    if(signalLoaded <= 0) return;
+    
     if(GetWindowRect(hwnd, &rect)) {
         
-		int windowWidth = rect.right - rect.left;
+        int windowWidth = rect.right - rect.left;
         int windowHeight = rect.bottom - rect.top;
-		
-		for(int i = 0; i < maxSamples - 1; i++){
+    
+        for(int i = 0; i < maxSamples - 1; i++){
 
-			printf("i %ld\n", signalBuffer[i]);
-		
-			points[0].x = i;
-			points[0].y = signalBuffer[i];
-			points[1].x = i + 1;
-			points[1].y = signalBuffer[i+1];
-			Polyline(hdc, points, 2);
-		}
+            //printf("i %ld\n", signalBuffer[i]);
+            points[0].x = i;
+            points[0].y = signalBuffer[i];
+            points[1].x = i + 1;
+            points[1].y = signalBuffer[i+1];
+            Polyline(hdc, points, 2);
+        }
     }
 }
 
 int CountFileLines(char* fileName){
-	int numLines = 0;
-	int chr = 0;
-	
-	FILE * ptr_file = fopen(fileName, "r");
-	if(ptr_file != NULL){
-		while(!feof(ptr_file)) {
-			chr = fgetc(ptr_file);
-			if(chr == '\n') numLines++;
-		}
-		fclose( ptr_file );
-	}
-	printf("Number of lines: %d\n", numLines );
-	return numLines;
+    int numLines = 0;
+    int chr = 0;
+    
+    FILE * ptr_file = fopen(fileName, "r");
+    if(ptr_file != NULL){
+        while(!feof(ptr_file)) {
+            chr = fgetc(ptr_file);
+            if(chr == '\n') numLines++;
+        }
+        fclose( ptr_file );
+    }
+    printf("Number of lines: %d\n", numLines );
+    return numLines;
 }
 
 void LoadSignalData(char* fileName, long* signalArray, int maxNum){
     
-	int numLines = CountFileLines(fileName);
+    int numLines = CountFileLines(fileName);
     FILE * ptr_file = fopen(fileName, "r");
-	
+    
     if(ptr_file != NULL){
-		
-		int idxSignalArray = 0;
-		char strLine [ 128 ];
-		
+    
+        int idxSignalArray = 0;
+        char strLine [ 128 ];
+        
         while ( fgets ( strLine, sizeof strLine, ptr_file ) != NULL ) {
-			signalArray[idxSignalArray] = strtol(strLine, NULL, 10);
-			idxSignalArray++;
-			if(idxSignalArray >= maxNum) break;
+            signalArray[idxSignalArray] = strtol(strLine, NULL, 10);
+            idxSignalArray++;
+            if(idxSignalArray >= maxNum) break;
         }
-		
+        if(idxSignalArray >= 1) signalLoaded = 1;
+        
         fclose( ptr_file );
     }
+}
+
+void AddMenus(HWND hwnd) {
+
+    HMENU hMenubar;
+    HMENU hMenu;
+
+    hMenubar = CreateMenu();
+    hMenu = CreateMenu();
+
+    AppendMenuW(hMenu, MF_STRING, IDM_FILE_NEW, L"&New");
+    AppendMenuW(hMenu, MF_STRING, IDM_FILE_OPEN, L"&Open");
+    AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
+    AppendMenuW(hMenu, MF_STRING, IDM_FILE_QUIT, L"&Quit");
+
+    AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR) hMenu, L"&File");
+    SetMenu(hwnd, hMenubar);
 }
 
