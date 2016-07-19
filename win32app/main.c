@@ -11,7 +11,8 @@ void LoadSignalData(char* fileName, long* signalArray, int maxNum);
 void DrawSignalPanel(HDC hdc, HWND hwnd);
 void DrawGridLines(HDC hdc, HWND hwnd, int interval);
 void DrawSignal(HDC hdc, HWND hwnd);
-void log();
+void log_int(const char* note, int intVal);
+void log_long(const char* note, long longVal);
 
 #define IDM_FILE_NEW 1
 #define IDM_FILE_OPEN 2
@@ -19,7 +20,7 @@ void log();
 
 OPENFILENAME openFileName;
 long signalBuffer[10000];
-int maxSamples = 128;
+int maxSamples = 500;
 int signalLoaded = 0;
 
 /*  WinMain(), our entry point  */
@@ -57,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine
     /*  Show and update our window  */
     ShowWindow(hwnd, iCmdShow);
     UpdateWindow(hwnd);
-
+    
     /*  Retrieve and process messages until we get WM_QUIT  */
     while ( GetMessage(&msg, NULL, 0, 0) ) {
         TranslateMessage(&msg);    /*  for certain keyboard messages  */
@@ -142,10 +143,15 @@ void DrawSignalPanel(HDC hdc, HWND hwnd){
     hBigGridPen = CreatePen(PS_SOLID, 1, RGB(240, 128, 128));
     hSignalPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
     
+    //Small grid lines
     SelectObject(hdc, hSmallGridPen); 
     DrawGridLines(hdc, hwnd, 10);
+    
+    //Big grid lines
     SelectObject(hdc, hBigGridPen); 
     DrawGridLines(hdc, hwnd, 50);
+    
+    //Signal wave line
     SelectObject(hdc, hSignalPen); 
     DrawSignal(hdc, hwnd);
 }
@@ -194,8 +200,8 @@ void DrawSignal(HDC hdc, HWND hwnd){
         int windowHeight = rect.bottom - rect.top;
     
         for(int i = 1; i < maxSamples - 1; i++){
-
-            //printf("i %ld\n", signalBuffer[i]);
+        
+            log_long("i ", signalBuffer[i]);
             points[0].x = xOffset + i;
             points[0].y = signalBuffer[i];
             points[1].x = xOffset + i + 1;
@@ -217,7 +223,8 @@ int CountFileLines(char* fileName){
         }
         fclose( ptr_file );
     }
-    printf("Number of lines: %d\n", numLines );
+    
+    log_int("\nNumber of lines: ", numLines);
     return numLines;
 }
 
@@ -239,6 +246,7 @@ void LoadSignalData(char* fileName, long* signalArray, int maxNum){
         if(idxSignalArray >= 1) signalLoaded = 1;
         
         fclose( ptr_file );
+        log_int("\nidxSignalArray: ", idxSignalArray);
     }
 }
 
@@ -259,13 +267,36 @@ void AddMenus(HWND hwnd) {
     SetMenu(hwnd, hMenubar);
 }
 
-void log(){
+void log_int(const char* note, int intVal){
+    
     FILE *pfile = NULL;
     char *filename = "C:\\temp\\ecg_log.txt";
+    
     pfile = fopen(filename, "a");
     if(pfile == NULL) {
         printf("Error opening %s for writing.", filename);
+    } else {
+        fputs(note, pfile);
+        fputs(" ", pfile);
+        fprintf(pfile, "%d", intVal);
     }
-    fputs("Test", pfile);
+    
+    fclose(pfile);
+}
+
+void log_long(const char* note, long longVal){
+    
+    FILE *pfile = NULL;
+    char *filename = "C:\\temp\\ecg_log.txt";
+    
+    pfile = fopen(filename, "a");
+    if(pfile == NULL) {
+        printf("Error opening %s for writing.", filename);
+    } else {
+        fputs(note, pfile);
+        fputs(" ", pfile);
+        fprintf(pfile, "%ld", longVal);
+    }
+    
     fclose(pfile);
 }
