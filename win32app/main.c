@@ -1,19 +1,23 @@
 #include <windows.h>
 #include <winnt.h>
 #include <stdio.h>
+#include <Commdlg.h>
 
 //Declare functions
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void AddMenus(HWND);
+void DoOpenFile();
 void LoadSignalData(char* fileName, long* signalArray, int maxNum);
 void DrawSignalPanel(HDC hdc, HWND hwnd);
 void DrawGridLines(HDC hdc, HWND hwnd, int interval);
 void DrawSignal(HDC hdc, HWND hwnd);
+void log();
 
 #define IDM_FILE_NEW 1
 #define IDM_FILE_OPEN 2
 #define IDM_FILE_QUIT 3
 
+OPENFILENAME openFileName;
 long signalBuffer[10000];
 int maxSamples = 128;
 int signalLoaded = 0;
@@ -86,10 +90,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
         case WM_COMMAND:
             switch(LOWORD(wParam)) {
                 case IDM_FILE_NEW:
-                    printf("File new / open\n");
+                    printf("File new\n");
                     break;
                 case IDM_FILE_OPEN:
-                    LoadSignalData("C:\\temp\\testdata.txt", signalBuffer, maxSamples);
+                    DoOpenFile();
                     RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
                     break;
                 case IDM_FILE_QUIT:
@@ -105,6 +109,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
     }
     /*  Send any messages we don't handle to default window procedure  */
     return DefWindowProc(hwnd, iMsg, wParam, lParam);
+}
+
+void DoOpenFile(){
+    char szFile[100];
+     
+     // open a file name
+    ZeroMemory( &openFileName , sizeof( openFileName));
+    openFileName.lStructSize        = sizeof ( openFileName );
+    openFileName.hwndOwner          = NULL  ;
+    openFileName.lpstrFile          = szFile ;
+    openFileName.lpstrFile[0]       = '\0';
+    openFileName.nMaxFile           = sizeof( szFile );
+    openFileName.lpstrFilter        = "All\0*.*\0Text\0*.TXT\0";
+    openFileName.nFilterIndex       = 1;
+    openFileName.lpstrFileTitle     = NULL ;
+    openFileName.nMaxFileTitle      = 0 ;
+    openFileName.lpstrInitialDir    = NULL ;
+    openFileName.Flags              = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    GetOpenFileName( &openFileName );
+    
+    LoadSignalData(openFileName.lpstrFile, signalBuffer, maxSamples);
 }
 
 void DrawSignalPanel(HDC hdc, HWND hwnd){
@@ -159,6 +184,7 @@ void DrawSignal(HDC hdc, HWND hwnd){
 
     POINT points[2];
     RECT rect;
+    int xOffset = 20;
     
     if(signalLoaded <= 0) return;
     
@@ -167,13 +193,13 @@ void DrawSignal(HDC hdc, HWND hwnd){
         int windowWidth = rect.right - rect.left;
         int windowHeight = rect.bottom - rect.top;
     
-        for(int i = 0; i < maxSamples - 1; i++){
+        for(int i = 1; i < maxSamples - 1; i++){
 
             //printf("i %ld\n", signalBuffer[i]);
-            points[0].x = i;
+            points[0].x = xOffset + i;
             points[0].y = signalBuffer[i];
-            points[1].x = i + 1;
-            points[1].y = signalBuffer[i+1];
+            points[1].x = xOffset + i + 1;
+            points[1].y = signalBuffer[i + 1];
             Polyline(hdc, points, 2);
         }
     }
@@ -233,3 +259,13 @@ void AddMenus(HWND hwnd) {
     SetMenu(hwnd, hMenubar);
 }
 
+void log(){
+    FILE *pfile = NULL;
+    char *filename = "C:\\temp\\ecg_log.txt";
+    pfile = fopen(filename, "a");
+    if(pfile == NULL) {
+        printf("Error opening %s for writing.", filename);
+    }
+    fputs("Test", pfile);
+    fclose(pfile);
+}
