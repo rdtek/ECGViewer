@@ -2,28 +2,24 @@
 #include <winnt.h>
 #include <stdio.h>
 #include <Commdlg.h>
+#include <math.h>
+
+#include "logging.h"
+#include "ecg.h"
+
+#define IDM_FILE_NEW 1
+#define IDM_FILE_OPEN 2
+#define IDM_FILE_QUIT 3
 
 //Declare functions
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void AddMenus(HWND);
 void DoOpenFile();
 void LoadSignalData(char* fileName, long* signalArray, int maxNum);
-void DrawSignalPanel(HDC hdc, HWND hwnd);
-void DrawGridLines(HDC hdc, HWND hwnd, int interval);
-void DrawSignal(HDC hdc, HWND hwnd);
-void log_int(const char* note, int intVal);
-void log_long(const char* note, long longVal);
-
-#define IDM_FILE_NEW 1
-#define IDM_FILE_OPEN 2
-#define IDM_FILE_QUIT 3
 
 OPENFILENAME openFileName;
-long signalBuffer[10000];
-int maxSamples = 500;
-int signalLoaded = 0;
 
-/*  WinMain(), our entry point  */
+/*  WinMain(), application entry point  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int iCmdShow) {
     
     static char szAppName[] = "ECGViewer";
@@ -118,97 +114,19 @@ void DoOpenFile(){
      // open a file name
     ZeroMemory( &openFileName , sizeof( openFileName));
     openFileName.lStructSize        = sizeof ( openFileName );
-    openFileName.hwndOwner          = NULL  ;
-    openFileName.lpstrFile          = szFile ;
+    openFileName.hwndOwner          = NULL;
+    openFileName.lpstrFile          = szFile;
     openFileName.lpstrFile[0]       = '\0';
     openFileName.nMaxFile           = sizeof( szFile );
     openFileName.lpstrFilter        = "All\0*.*\0Text\0*.TXT\0";
     openFileName.nFilterIndex       = 1;
-    openFileName.lpstrFileTitle     = NULL ;
-    openFileName.nMaxFileTitle      = 0 ;
-    openFileName.lpstrInitialDir    = NULL ;
+    openFileName.lpstrFileTitle     = NULL;
+    openFileName.nMaxFileTitle      = 0;
+    openFileName.lpstrInitialDir    = NULL;
     openFileName.Flags              = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
     GetOpenFileName( &openFileName );
     
-    LoadSignalData(openFileName.lpstrFile, signalBuffer, maxSamples);
-}
-
-void DrawSignalPanel(HDC hdc, HWND hwnd){
-    
-    HPEN    hBigGridPen;
-    HPEN    hSmallGridPen;
-    HPEN    hSignalPen;    
-    
-    hSmallGridPen = CreatePen(PS_SOLID, 1, RGB(255, 192, 192));
-    hBigGridPen = CreatePen(PS_SOLID, 1, RGB(240, 128, 128));
-    hSignalPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-    
-    //Small grid lines
-    SelectObject(hdc, hSmallGridPen); 
-    DrawGridLines(hdc, hwnd, 10);
-    
-    //Big grid lines
-    SelectObject(hdc, hBigGridPen); 
-    DrawGridLines(hdc, hwnd, 50);
-    
-    //Signal wave line
-    SelectObject(hdc, hSignalPen); 
-    DrawSignal(hdc, hwnd);
-}
-
-void DrawGridLines(HDC hdc, HWND hwnd, int interval){
-
-    POINT points[2];
-    RECT rect;
-
-    if(GetWindowRect(hwnd, &rect)) {
-        
-        int windowWidth = rect.right - rect.left;
-        int windowHeight = rect.bottom - rect.top;
-        
-        //Vertical lines
-        for(int i = 0; i*interval < windowWidth; i++){
-            points[0].x = interval * i;
-            points[0].y = 0;
-            points[1].x = interval * i;
-            points[1].y = windowHeight;
-            Polyline(hdc, points, 2);
-        }
-        
-        //Horizontal lines
-        for(int i = 0; i*interval < windowHeight; i++){
-            points[0].x = 0;
-            points[0].y = interval * i;
-            points[1].x = windowWidth;
-            points[1].y = interval * i;
-            Polyline(hdc, points, 2);
-        }
-    }
-}
-
-void DrawSignal(HDC hdc, HWND hwnd){
-
-    POINT points[2];
-    RECT rect;
-    int xOffset = 20;
-    
-    if(signalLoaded <= 0) return;
-    
-    if(GetWindowRect(hwnd, &rect)) {
-        
-        int windowWidth = rect.right - rect.left;
-        int windowHeight = rect.bottom - rect.top;
-    
-        for(int i = 1; i < maxSamples - 1; i++){
-        
-            log_long("i ", signalBuffer[i]);
-            points[0].x = xOffset + i;
-            points[0].y = signalBuffer[i];
-            points[1].x = xOffset + i + 1;
-            points[1].y = signalBuffer[i + 1];
-            Polyline(hdc, points, 2);
-        }
-    }
+    LoadSignalData(openFileName.lpstrFile, signalBuffer, 10000);
 }
 
 int CountFileLines(char* fileName){
@@ -265,38 +183,4 @@ void AddMenus(HWND hwnd) {
 
     AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR) hMenu, L"&File");
     SetMenu(hwnd, hMenubar);
-}
-
-void log_int(const char* note, int intVal){
-    
-    FILE *pfile = NULL;
-    char *filename = "C:\\temp\\ecg_log.txt";
-    
-    pfile = fopen(filename, "a");
-    if(pfile == NULL) {
-        printf("Error opening %s for writing.", filename);
-    } else {
-        fputs(note, pfile);
-        fputs(" ", pfile);
-        fprintf(pfile, "%d", intVal);
-    }
-    
-    fclose(pfile);
-}
-
-void log_long(const char* note, long longVal){
-    
-    FILE *pfile = NULL;
-    char *filename = "C:\\temp\\ecg_log.txt";
-    
-    pfile = fopen(filename, "a");
-    if(pfile == NULL) {
-        printf("Error opening %s for writing.", filename);
-    } else {
-        fputs(note, pfile);
-        fputs(" ", pfile);
-        fprintf(pfile, "%ld", longVal);
-    }
-    
-    fclose(pfile);
 }
