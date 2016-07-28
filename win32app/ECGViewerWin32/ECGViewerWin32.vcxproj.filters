@@ -18,13 +18,13 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="logging.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ecg.c">
+    <ClCompile Include="ecgview.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wndmain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,7 +32,10 @@
     <ClInclude Include="logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ecg.h">
+    <ClInclude Include="ecgview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wndmain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

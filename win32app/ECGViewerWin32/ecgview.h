@@ -7,13 +7,14 @@
 
 long signalBuffer[10000];
 int maxSamples;
-int signalLoaded;
+int PADDING_X;
+int sampleFrequency;
 
-void DrawSignalPanel(HDC hdc, HWND hwnd);
+void DrawGrid(HDC hdc, HWND hwnd);
 void DrawGridLines(HDC hdc, HWND hwnd, int interval);
 void DrawSignal(HDC hdc, HWND hwnd);
-int PointsPerTrack();
-int TrackWidthPx();
+int PointsPerTrack(HDC hdc, HWND hwnd);
+int TrackWidthPx(HDC hdc, HWND hwnd);
 int EcgBigSquarePx();
 int ScaleSignalXToPixels(int sampleIndex);
 

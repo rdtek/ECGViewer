@@ -143,13 +143,14 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ecg.c" />
+    <ClCompile Include="ecgview.c" />
     <ClCompile Include="logging.c" />
-    <ClCompile Include="main.c" />
+    <ClCompile Include="wndmain.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ecg.h" />
+    <ClInclude Include="ecgview.h" />
     <ClInclude Include="logging.h" />
+    <ClInclude Include="wndmain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

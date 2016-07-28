@@ -1,34 +1,33 @@
-#include "ecg.h"
+#include "ecgview.h"
 
-int maxSamples = 10000;
-int PADDING_X = 20;
-int signalLoaded = 0;
-int sampleFrequency = 500;
+maxSamples = 10000;
+PADDING_X = 20;
+sampleFrequency = 500;
 
-void DrawSignalPanel(HDC hdc, HWND hwnd){
+void DrawGrid(HDC hdc, HWND hwnd){
     
     //Setup drawing pens
-    HPEN    hBigGridPen;
-    HPEN    hSmallGridPen;
-    HPEN    hSignalPen;    
-    
+    HPEN   hBigGridPen;
+    HPEN   hSmallGridPen;
+	HBRUSH hBgBrush; 
+	RECT   rect;
+
+	hBgBrush = CreateSolidBrush(RGB(255, 255, 255));
     hSmallGridPen = CreatePen(PS_SOLID, 1, RGB(255, 192, 192));
     hBigGridPen = CreatePen(PS_SOLID, 1, RGB(240, 128, 128));
-    hSignalPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
     
-    //Small grid lines
-    SelectObject(hdc, hSmallGridPen); 
-    DrawGridLines(hdc, hwnd, 10);
-    
-    //Big grid lines
-    SelectObject(hdc, hBigGridPen); 
-    DrawGridLines(hdc, hwnd, 50);
-    
-    if(signalLoaded <= 0) return; //No signal data to draw yet.
-    
-    //Signal wave line
-    SelectObject(hdc, hSignalPen); 
-    DrawSignal(hdc, hwnd);
+	if (GetClientRect(hwnd, &rect)) {
+		//Fill background
+		FillRect(hdc, &rect, hBgBrush);
+
+		//Small grid lines
+		SelectObject(hdc, hSmallGridPen);
+		DrawGridLines(hdc, hwnd, 10);
+
+		//Big grid lines
+		SelectObject(hdc, hBigGridPen);
+		DrawGridLines(hdc, hwnd, 50);
+	}
 }
 
 void DrawGridLines(HDC hdc, HWND hwnd, int interval){
@@ -63,17 +62,23 @@ void DrawGridLines(HDC hdc, HWND hwnd, int interval){
 
 void DrawSignal(HDC hdc, HWND hwnd){
 
+	HPEN  hSignalPen;
     POINT points[2];
-    RECT rect;
+    RECT  rect;
+
+	hSignalPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
     int xPos = PADDING_X;
     int yOffset = 100;
     int i = 0; int j = 0;
     int pointsPerTrack = PointsPerTrack(hdc, hwnd);
-    
-    log_int("pointsPerTrack: ", (int) pointsPerTrack);
+
+	//Signal wave line
+	SelectObject(hdc, hSignalPen);
+
+    //log_int("pointsPerTrack: ", (int) pointsPerTrack);
     
     if(GetWindowRect(hwnd, &rect)) {
-        
+
         int windowWidth = rect.right - rect.left;
         int windowHeight = rect.bottom - rect.top;
     
@@ -88,7 +93,7 @@ void DrawSignal(HDC hdc, HWND hwnd){
             xPos = points[1].x;
             
             if (i == (pointsPerTrack - 1)) {
-                log_int("j: ", j);
+                //log_int("j: ", j);
                 i = 0;
                 xPos = PADDING_X;
                 yOffset += 100;
