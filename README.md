@@ -11,4 +11,5 @@ There are three applications:
 3. Win32 App - written using pure C and [Win32 API](https://en.wikipedia.org/wiki/Windows_API) to run on Windows.
 
 Screenshot of Win32 App:
+
 ![Screenshot image](win32app/ECGViewerScreenshot.png?raw=true "Title")
