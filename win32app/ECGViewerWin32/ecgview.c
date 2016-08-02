@@ -74,16 +74,22 @@ void DrawSignal(HDC hdc, HWND hwnd){
 
 	//Signal wave line
 	SelectObject(hdc, hSignalPen);
-
+	
     //log_int("pointsPerTrack: ", (int) pointsPerTrack);
     
-    if(GetWindowRect(hwnd, &rect)) {
+    if(GetClientRect(hwnd, &rect)) {
 
         int windowWidth = rect.right - rect.left;
         int windowHeight = rect.bottom - rect.top;
-    
+        
+		rect.left = padding_x;
+		rect.top = 30;
+
         for (i = 0, j = 0; j < maxSamples - 1; i += 1, j += 1) {
 
+			//TODO: calculate the time at the beginning of each track
+			DrawText(hdc, L"TIME 00:00:00", -1, &rect, DT_SINGLELINE | DT_NOCLIP);
+			
             points[0].x = xPos;
             points[0].y = yOffset + (signalBuffer[j] * 0.1);
             points[1].x = padding_x + ScaleSignalXToPixels(i + 1);
@@ -97,6 +103,7 @@ void DrawSignal(HDC hdc, HWND hwnd){
                 i = 0;
                 xPos = padding_x;
                 yOffset += 100;
+				rect.top = yOffset - 50;
             }
         }
     }
