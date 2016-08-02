@@ -1,7 +1,7 @@
-#ifndef HEADER_WNDMAIN
-#define HEADER_WNDMAIN
-
+#pragma once
 #include <tchar.h>
+#include <wchar.h>
+#include <stdio.h>
 #include <windows.h>
 #include "logging.h"
 #include "ecgview.h"
@@ -25,5 +25,3 @@ int CountFileLines(const wchar_t* fileName);
 void SaveWindowSize(HWND hwnd);
 void DoRedraw(HWND hwnd);
 VOID CALLBACK PaintTimerProc(HWND hwnd, UINT uMessage, UINT_PTR uEventId, DWORD dwTime);
-
-#endif

@@ -1,8 +1,8 @@
 #include "ecgview.h"
 
-maxSamples = 10000;
-PADDING_X = 20;
-sampleFrequency = 500;
+int maxSamples = 100000;
+int padding_x = 20;
+int sampleFrequency = 500;
 
 void DrawGrid(HDC hdc, HWND hwnd){
     
@@ -12,9 +12,9 @@ void DrawGrid(HDC hdc, HWND hwnd){
 	HBRUSH hBgBrush; 
 	RECT   rect;
 
-	hBgBrush = CreateSolidBrush(RGB(255, 255, 255));
+	hBgBrush      = CreateSolidBrush(RGB(255, 255, 255));
     hSmallGridPen = CreatePen(PS_SOLID, 1, RGB(255, 192, 192));
-    hBigGridPen = CreatePen(PS_SOLID, 1, RGB(240, 128, 128));
+    hBigGridPen   = CreatePen(PS_SOLID, 1, RGB(240, 128, 128));
     
 	if (GetClientRect(hwnd, &rect)) {
 		//Fill background
@@ -67,7 +67,7 @@ void DrawSignal(HDC hdc, HWND hwnd){
     RECT  rect;
 
 	hSignalPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-    int xPos = PADDING_X;
+    int xPos = padding_x;
     int yOffset = 100;
     int i = 0; int j = 0;
     int pointsPerTrack = PointsPerTrack(hdc, hwnd);
@@ -86,7 +86,7 @@ void DrawSignal(HDC hdc, HWND hwnd){
 
             points[0].x = xPos;
             points[0].y = yOffset + (signalBuffer[j] * 0.1);
-            points[1].x = PADDING_X + ScaleSignalXToPixels(i + 1);
+            points[1].x = padding_x + ScaleSignalXToPixels(i + 1);
             points[1].y = yOffset + (signalBuffer[j + 1] * 0.1);
             
             Polyline(hdc, points, 2);
@@ -95,7 +95,7 @@ void DrawSignal(HDC hdc, HWND hwnd){
             if (i == (pointsPerTrack - 1)) {
                 //log_int("j: ", j);
                 i = 0;
-                xPos = PADDING_X;
+                xPos = padding_x;
                 yOffset += 100;
             }
         }
@@ -127,7 +127,7 @@ int TrackWidthPx(HDC hdc, HWND hwnd){
     if(GetWindowRect(hwnd, &windowRect)) {
         int windowWidth = windowRect.right - windowRect.left;
         int windowHeight = windowRect.bottom - windowRect.top;
-        trackWidth = windowWidth - 2 * PADDING_X;
+        trackWidth = windowWidth - 2 * padding_x;
     }
 
     return (int) trackWidth;
