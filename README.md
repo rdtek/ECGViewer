@@ -6,6 +6,7 @@ This project is provided under the terms of the [MIT license](http://choosealice
 
 There are three applications:
 
+| App        | Description                                                   |
 |------------|---------------------------------------------------------------|
 | QT App     | written using C++ and the [QT](https://www.qt.io/) framework. |
 | Web App    | written using JS and HTML to viewed in a web browser.         |
