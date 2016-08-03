@@ -8,9 +8,9 @@ There are three applications:
 
 | App        | Description                                                   |
 |------------|---------------------------------------------------------------|
-| [QT App](qtapp/)   | written using C++ and the [QT](https://www.qt.io/) framework. |
-| Web App    | written using JS and HTML to viewed in a web browser.         |
-| Win32 App  | written using pure C and [Win32 API](https://en.wikipedia.org/wiki/Windows_API) to run on Windows. |
+| [ECG Viewer QT App](qtapp/)   | Developed with C++ and the [QT](https://www.qt.io/) framework. |
+| [ECG Viewer Web App](webapp/)     | Developed with JS and HTML to view in a web browser.         |
+| [ECG Viewer Win32 App](win32app/)  | Developed with pure C and [Win32 API](https://en.wikipedia.org/wiki/Windows_API) to run on Windows. |
 
 Screenshot of Win32 App:
 
