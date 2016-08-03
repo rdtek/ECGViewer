@@ -7,7 +7,7 @@ int sampleFrequency = 500;
 // Name:   DrawGrid
 // Desc:   Draws grid squares indicating time along horizontal and voltage in vertical
 // Param:  hDeviceContext - the Windows device context to draw to.
-void DrawGrid(HDC hDeviceContext, HWND hwnd){
+void DrawGrid(HDC hDeviceContext, HWND hWindow){
     
     //Setup drawing pens
     HPEN   hBigGridPen;
@@ -19,17 +19,17 @@ void DrawGrid(HDC hDeviceContext, HWND hwnd){
     hSmallGridPen = CreatePen(PS_SOLID, 1, RGB(255, 192, 192));
     hBigGridPen   = CreatePen(PS_SOLID, 1, RGB(240, 128, 128));
     
-	if (GetClientRect(hwnd, &rect)) {
+	if (GetClientRect(hWindow, &rect)) {
 		//Fill background
 		FillRect(hDeviceContext, &rect, hBgBrush);
 
 		//Small grid lines
 		SelectObject(hDeviceContext, hSmallGridPen);
-		DrawGridLines(hDeviceContext, hwnd, 10);
+		DrawGridLines(hDeviceContext, hWindow, 10);
 
 		//Big grid lines
 		SelectObject(hDeviceContext, hBigGridPen);
-		DrawGridLines(hDeviceContext, hwnd, 50);
+		DrawGridLines(hDeviceContext, hWindow, 50);
 	}
 }
  
@@ -74,52 +74,76 @@ void DrawSignal(HDC hDeviceContext, HWND hWindow){
 
 	HPEN  hSignalPen;
     POINT points[2];
-    RECT  rect;
+    RECT  windowRect;
+    RECT  textRect;
 
 	hSignalPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
     int xPos = padding_x;
-    int yOffset = 100;
-    int i = 0; int j = 0;
+    int bottomPadding = 0.5 * EcgBigSquarePx();
+    int yOffset = 1.5 * EcgBigSquarePx();
+    int iTrackPoint = 0; int iSample = 0;
     int pointsPerTrack = PointsPerTrack(hDeviceContext, hWindow);
+    int trackIndex = 0;
 
 	SelectObject(hDeviceContext, hSignalPen);
-	
-    //log_int("pointsPerTrack: ", (int) pointsPerTrack);
     
-    if(GetClientRect(hWindow, &rect)) {
-
-        int windowWidth = rect.right - rect.left;
-        int windowHeight = rect.bottom - rect.top;
+    if(GetClientRect(hWindow, &windowRect)) {
         
-        rect.left = padding_x;
-        rect.top = 30;
+        //How many signal tracks can fit in the window?
+        int width = windowRect.left - windowRect.right;
+        int windowHeight = windowRect.bottom - windowRect.top;
+        int trackHeight = 2 * EcgBigSquarePx();
+        int maxTracksInWindow = (windowHeight - bottomPadding) / trackHeight;
 
-        for (i = 0, j = 0; j < maxSamples - 1; i += 1, j += 1) {
+        //First time label starting position
+        textRect = windowRect;
+        textRect.left = padding_x;
+        textRect.top = 2 * EcgSmallSquarePx();
 
-			//Display the time at the beginning of each track
-            int trackTime = i * TrackDurationMs(hWindow);
-            wchar_t timeLabelBuff[256];
-            wsprintfW(timeLabelBuff, L"Time: %d", trackTime); //TODO: only do this at beginning of each track
-			DrawText(hDeviceContext, timeLabelBuff, -1, &rect, DT_SINGLELINE | DT_NOCLIP);
+        for (iTrackPoint = 0, iSample = 0; iSample < maxSamples - 1; iTrackPoint += 1, iSample += 1) {
+
+            if (iTrackPoint == 0) 
+                DrawTrackStartTime(hDeviceContext, hWindow, trackIndex, textRect);
 			
+            //Set the coordinates for start and end points of line
             points[0].x = xPos;
-            points[0].y = yOffset + (signalBuffer[j] * 0.1);
-            points[1].x = padding_x + ScaleSignalXToPixels(i + 1);
-            points[1].y = yOffset + (signalBuffer[j + 1] * 0.1);
+            points[0].y = yOffset + (signalBuffer[iSample] * 0.1);
+            points[1].x = padding_x + ScaleSignalXToPixels(iTrackPoint + 1);
+            points[1].y = yOffset + (signalBuffer[iSample + 1] * 0.1);
             
-            //Signal wave line
+            //Draw the line onto the device context
             Polyline(hDeviceContext, points, 2);
+
             xPos = points[1].x;
             
-            if (i == (pointsPerTrack - 1)) {
-                //log_int("j: ", j);
-                i = 0;
+            //Reached eng of track, begin new track
+            if (iTrackPoint == (pointsPerTrack - 1)) {
+                iTrackPoint = -1;
                 xPos = padding_x;
-                yOffset += 100;
-				rect.top = yOffset - 50;
+                yOffset += 2 * EcgBigSquarePx();
+                textRect.top += 2 * EcgBigSquarePx();
+                trackIndex++;
             }
+
+            if (trackIndex >= maxTracksInWindow) break;
         }
     }
+}
+
+// Name:    DrawTrackStartTime
+// Desc:    Display the time at the beginning of each track
+// Param:   hDeviceContext - Windows device context to draw to.
+// Param:   hWindow - handle to window containing device context.
+// Param:   trackIndex - the index of the signal track 0, 1, 2, 3...
+// Param:   positionRect - rectangle struct to draw text in position
+void DrawTrackStartTime(HDC hDeviceContext, HWND hWindow, int trackIndex, RECT positionRect) {
+    int trackTimeMs = trackIndex * TrackDurationMs(hWindow);
+    double seconds = (double)trackTimeMs / 1000;
+    double minutes = seconds / 60;
+    double hours = minutes / 60;
+    wchar_t timeLabelBuff[256];
+    swprintf(timeLabelBuff, 30, L"Time: %.0f:%.0f:%.1f", hours, minutes, seconds);
+    DrawText(hDeviceContext, timeLabelBuff, -1, &positionRect, DT_SINGLELINE | DT_NOCLIP);
 }
 
 // Name:    ScaleSignalXToPixels
@@ -171,6 +195,13 @@ int TrackWidthPx(HWND hWindow){
 // Returns: Width and height of big grid square in pixel units
 int EcgBigSquarePx(){
     return 50;
+}
+
+// Name:    EcgSmallSquarePx
+// Desc:    Get the width and height of small ECG grid square representing 1/5 second
+// Returns: Width and height of big small square in pixel units
+double EcgSmallSquarePx(){
+    return EcgBigSquarePx() / 5;
 }
 
 // Name:    TrackDurationMs

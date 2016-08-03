@@ -36,64 +36,74 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	switch (msg)
 	{
-	case WM_CREATE:
-		AddMenus(hwnd);
-		break;
+	    case WM_CREATE:
+        {
+            AddMenus(hwnd);
+            break;
+        }
 
-	case WM_SIZE:
-		SaveWindowSize(hwnd);
-		wantDrawSignal = 0;
-		SetTimer(hwnd, 0, 150, PaintTimerProc);
-		break;
+        case WM_GETMINMAXINFO:
+        {
+            LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+            lpMMI->ptMinTrackSize.x = 300;
+            lpMMI->ptMinTrackSize.y = 300;
+            break;
+        }
 
-	case WM_EXITSIZEMOVE:
-		wantDrawSignal = 1;
-		if (WindowSizeChanged(hwnd) >= 1) {
-			DoRedraw(hwnd);
-		}
-		break;
+	    case WM_SIZE:
+        {
+            SaveWindowSize(hwnd);
+            wantDrawSignal = 0;
+            SetTimer(hwnd, 0, 150, PaintTimerProc);
+            break;
+        }
 
-	case WM_PAINT:
-		OutputDebugString(TEXT("\nPAINT"));
-		hdc = BeginPaint(hwnd, &ps);
-		DrawGrid(hdc, hwnd);
-		if (signalLoaded == 1 && wantDrawSignal >= 1) {
-			DrawSignal(hdc, hwnd);
-			//Save window size to avoid unnecessary redraw
-			SaveWindowSize(hwnd);
-		}
-		EndPaint(hwnd, &ps);
-		
-		break;
+	    case WM_EXITSIZEMOVE:
+        {
+            wantDrawSignal = 1;
+            if (WindowSizeChanged(hwnd) >= 1) {
+                DoRedraw(hwnd);
+            }
+            break;
+        }
 
-	case WM_COMMAND:
-		switch (LOWORD(wParam)) {
-		case IDM_FILE_OPEN:
-			DoOpenFile(signalBuffer, maxSamples);
-			wantDrawSignal = 1;
-			signalLoaded = 1;
-			DoRedraw(hwnd);
-			break;
-		case IDM_FILE_QUIT:
-			SendMessage(hwnd, WM_CLOSE, 0, 0);
-			break;
-		case IDM_TOOLS_REFRESH:
-			InvalidateRect(hwnd, 0, 1);
-			DoRedraw(hwnd);
-			break;
-		}
-		break;
+	    case WM_PAINT:
+        {
+            //OutputDebugString(TEXT("\nPAINT"));
+            hdc = BeginPaint(hwnd, &ps);
+            DrawGrid(hdc, hwnd);
+            if (signalLoaded == 1 && wantDrawSignal >= 1) {
+                DrawSignal(hdc, hwnd);
+                //Save window size to avoid unnecessary redraw
+                SaveWindowSize(hwnd);
+            }
+            EndPaint(hwnd, &ps);
+            break;
+        }
 
-	case WM_CLOSE:
-		DestroyWindow(hwnd);
-		break;
+	    case WM_COMMAND:
+        {
+            switch (LOWORD(wParam)) {
+            case IDM_FILE_OPEN:
+                DoOpenFile(signalBuffer, maxSamples);
+                wantDrawSignal = 1;
+                signalLoaded = 1;
+                DoRedraw(hwnd);
+                break;
+            case IDM_FILE_QUIT:
+                SendMessage(hwnd, WM_CLOSE, 0, 0);
+                break;
+            case IDM_TOOLS_REFRESH:
+                InvalidateRect(hwnd, 0, 1);
+                DoRedraw(hwnd);
+                break;
+            }
+            break;
+        }
 
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-
-	default:
-		break;
+	    case WM_CLOSE: { DestroyWindow(hwnd); break; }
+	    case WM_DESTROY: { PostQuitMessage(0); break; }
+	    default: break;
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
