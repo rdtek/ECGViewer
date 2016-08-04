@@ -23,14 +23,12 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             AddMenus(hWindow);
             int windowWidth = GetWindowWidth(hWindow);
-            hBtnPageLeft = CreateWindow( TEXT("BUTTON"), TEXT("<"),
-                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                windowWidth - 100, 220, 100, 24, hWindow, (HMENU)IDC_PAGELEFT_BUTTON,
-                GetModuleHandle(NULL), NULL);
-            hBtnPageRight = CreateWindow(TEXT("BUTTON"), TEXT(">"),
-                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                50, 220, 100, 24, hWindow, (HMENU)IDC_PAGELEFT_BUTTON,
-                GetModuleHandle(NULL), NULL);
+            
+            hBtnPageLeft = CreateButtonW(hWindow, IDC_PAGELEFT_BUTTON, 
+                L"<", windowWidth - 100, 220, 100, 24);
+            hBtnPageRight = CreateButtonW(hWindow, IDC_PAGELEFT_BUTTON, 
+                L">", 50, 220, 100, 24);
+
             windowCreated = true;
             break;
         }
