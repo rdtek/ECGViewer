@@ -1,21 +1,21 @@
 var adx_ecg = {
 
-    DPI: 96.0,
-    MM_PER_BIG_SQUARE : 25.0,
-    MS_PER_BIG_SQUARE : 1000,
-    MM_PER_INCH : 25.4, //25.4 millimetres = 1 inch.
-    BIG_GRID_COLOR : "#F08080", //rgb(240, 128, 128);
-    SMALL_GRID_COLOR : "#FFC0C0", //rgb(255, 192, 192);
-    SIGNAL_COLOR : "#000033",
-    SAMPLE_FREQUENCY : 500,
-    SAMPLE_RESOLUTION : 0.005,
-    TRACKS_PER_PAGE : 5,
-    SCALE_FACTOR : 1,
-    MIN_HEIGHT : 800,
-    PADDING_X : 50,
+    DPI                : 96.0,
+    MM_PER_BIG_SQUARE  : 25.0,
+    MS_PER_BIG_SQUARE  : 1000,
+    MM_PER_INCH        : 25.4, //25.4 millimetres = 1 inch.
+    BIG_GRID_COLOR     : "#F08080", //rgb(240, 128, 128);
+    SMALL_GRID_COLOR   : "#FFC0C0", //rgb(255, 192, 192);
+    SIGNAL_COLOR       : "#000033",
+    SAMPLE_FREQUENCY   : 500,
+    SAMPLE_RESOLUTION  : 0.005,
+    TRACKS_PER_PAGE    : 5,
+    SCALE_FACTOR       : 1,
+    MIN_HEIGHT         : 800,
+    PADDING_X          : 50,
 
-    SignalData : [],
-    AnalysisData : [],
+    SignalData         : [],
+    AnalysisData       : [],
 
     ECGCanvas : function () { return $("#ECGCanvas"); },
 
@@ -72,14 +72,23 @@ var adx_ecg = {
         return context;
     },
 
+	// Name:    EcgBigSquarePx
+    // Desc:    Get the width and height of big ECG grid square representing 1 second
+    // Returns: Width and height of big grid square in pixel units
     EcgBigSquarePx : function () {
         return this.ScaleFactor() * Math.round(this.MM_PER_BIG_SQUARE * this.DPI / this.MM_PER_INCH);
     },
 
+	// Name:    EcgSmallSquarePx
+    // Desc:    Get the width and height of small ECG grid square representing 1/5 second
+    // Returns: Width and height of small square in pixel units
     EcgSmallSquarePx : function () {
         return this.EcgBigSquarePx() / 5;
     },
 
+	// Name:    TrackWidthPx
+    // Desc:    Calculates width of signal track taking account of padding or margins
+    // Returns: Width of track in pixel units as integer
     TrackWidthPx : function () {
         var me = this;
         return me.ECGCanvas().outerWidth() - 2 * me.PADDING_X;
@@ -96,6 +105,10 @@ var adx_ecg = {
         return me.SCALE_FACTOR;
     },
 
+	
+    // Name:    PointsPerTrack
+    // Desc:    Calculates how many points fit in one signal track
+    // Returns: Whole number of points for one track
     PointsPerTrack : function () {
         var me = this;
         return Math.round(me.TrackWidthPx() / me.EcgBigSquarePx() * me.SAMPLE_FREQUENCY);
@@ -138,6 +151,8 @@ var adx_ecg = {
         ctx.canvas.height = calculatedHeight > me.MIN_HEIGHT ? calculatedHeight : me.MIN_HEIGHT;
     },
 
+	// Name:   DrawLine
+    // Desc:   Draws single line onto HTML canvas, used to draw grid lines and signal waves.
     DrawLine : function (x1, y1, x2, y2, penWidth, penColor) {
         var ctx = this.CanvasContext();
         ctx.lineWidth = penWidth;
@@ -148,6 +163,8 @@ var adx_ecg = {
         ctx.stroke();
     },
 
+    // Name:   DrawGrid
+    // Desc:   Draws grid squares indicating time along horizontal and voltage in vertical
     DrawGrid : function() {
 
         var me = this;
@@ -166,6 +183,8 @@ var adx_ecg = {
         DrawGridLines(me.EcgBigSquarePx(), ctx.canvas.width, ctx.canvas.height, me.BIG_GRID_COLOR);
     },
 
+	// Name:   DrawSignal
+    // Desc:   Draws rows of signal wave lines overlaid on ECG grid
     DrawSignal : function () {
 
         var me = this;
@@ -199,6 +218,10 @@ var adx_ecg = {
         return Math.round(xPixels);
     },
 
+	// Name:    ScaleSignalXToPixels
+    // Desc:    Creates a X coordinate based on grid scale so we can draw the signal point
+    // Param:   sampleIndex - the index of the sample in the signal samples array
+    // Returns: X pixel coordinate as integer
     ScaleSignalYToPixels : function(sample) {
         var yPixels = sample * this.SAMPLE_RESOLUTION * this.EcgBigSquarePx();
         return Math.round(yPixels);
