@@ -146,11 +146,13 @@
   <ItemGroup>
     <ClCompile Include="ecgview.c" />
     <ClCompile Include="logging.c" />
+    <ClCompile Include="windowtools.c" />
     <ClCompile Include="wndmain.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ecgview.h" />
     <ClInclude Include="logging.h" />
+    <ClInclude Include="windowtools.h" />
     <ClInclude Include="wndmain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

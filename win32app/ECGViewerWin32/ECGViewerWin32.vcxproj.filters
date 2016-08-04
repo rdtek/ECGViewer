@@ -27,6 +27,9 @@
     <ClCompile Include="wndmain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="windowtools.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logging.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wndmain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windowtools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

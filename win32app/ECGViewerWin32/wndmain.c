@@ -1,44 +1,37 @@
 #include "wndmain.h"
 
+bool windowCreated = false;
+WindowSize windowSize;
+
 VOID CALLBACK PaintTimerProc(HWND hwnd, UINT uMessage, UINT_PTR uEventId, DWORD dwTime) {
 	BOOL result = KillTimer(hwnd, uEventId);
 	wantDrawSignal = 1;
-	SaveWindowSize(hwnd);
+	SaveWindowSize(hwnd, &windowSize);
 	DoRedraw(hwnd);
 }
 
-void SaveWindowSize(HWND hwnd) {
-	RECT windowRect;
-	if (GetWindowRect(hwnd, &windowRect)) {
-		windowWidth = windowRect.right - windowRect.left;
-		windowHeight = windowRect.bottom - windowRect.top;
-	}
-}
-
-BOOL WindowSizeChanged(HWND hwnd) {
-	RECT windowRect;
-	BOOL changed = 0;
-	if (GetWindowRect(hwnd, &windowRect)) {
-		if ((windowRect.right - windowRect.left) != windowWidth
-			|| (windowRect.bottom - windowRect.top) != windowHeight) {
-			changed = 1;
-		}
-	}
-	return changed;
-}
-
 //Window Procedure - handles window messages
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
-	HDC         hdc;
+	HDC         hDeviceContext;
 	RECT        windowRect;
 
 	switch (msg)
 	{
 	    case WM_CREATE:
         {
-            AddMenus(hwnd);
+            AddMenus(hWindow);
+            int windowWidth = GetWindowWidth(hWindow);
+            hBtnPageLeft = CreateWindow( TEXT("BUTTON"), TEXT("<"),
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                windowWidth - 100, 220, 100, 24, hWindow, (HMENU)IDC_PAGELEFT_BUTTON,
+                GetModuleHandle(NULL), NULL);
+            hBtnPageRight = CreateWindow(TEXT("BUTTON"), TEXT(">"),
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                50, 220, 100, 24, hWindow, (HMENU)IDC_PAGELEFT_BUTTON,
+                GetModuleHandle(NULL), NULL);
+            windowCreated = true;
             break;
         }
 
@@ -52,17 +45,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	    case WM_SIZE:
         {
-            SaveWindowSize(hwnd);
-            wantDrawSignal = 0;
-            SetTimer(hwnd, 0, 150, PaintTimerProc);
+            if (GetClientRect(hWindow, &windowRect)) {
+                if (windowCreated == true) {
+                    int windowWidth = GetWindowWidth(hWindow);
+                    SetWindowPos(hBtnPageLeft, NULL, windowWidth - 100, 10, 30, 30, NULL);
+                    SetWindowPos(hBtnPageRight, NULL, windowWidth - 60, 10, 30, 30, NULL);
+                }
+                SaveWindowSize(hWindow, &windowSize);
+                wantDrawSignal = 0;
+                SetTimer(hWindow, 0, 150, PaintTimerProc);
+            }
             break;
         }
 
 	    case WM_EXITSIZEMOVE:
         {
             wantDrawSignal = 1;
-            if (WindowSizeChanged(hwnd) >= 1) {
-                DoRedraw(hwnd);
+            if (WindowSizeChanged(hWindow, &windowSize) >= 1) {
+                DoRedraw(hWindow);
             }
             break;
         }
@@ -70,14 +70,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	    case WM_PAINT:
         {
             //OutputDebugString(TEXT("\nPAINT"));
-            hdc = BeginPaint(hwnd, &ps);
-            DrawGrid(hdc, hwnd);
+            hDeviceContext = BeginPaint(hWindow, &ps);
+            DrawGrid(hDeviceContext, hWindow);
             if (signalLoaded == 1 && wantDrawSignal >= 1) {
-                DrawSignal(hdc, hwnd);
+                DrawSignal(hDeviceContext, hWindow);
                 //Save window size to avoid unnecessary redraw
-                SaveWindowSize(hwnd);
+                SaveWindowSize(hWindow, &windowSize);
             }
-            EndPaint(hwnd, &ps);
+            EndPaint(hWindow, &ps);
             break;
         }
 
@@ -88,24 +88,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 DoOpenFile(signalBuffer, maxSamples);
                 wantDrawSignal = 1;
                 signalLoaded = 1;
-                DoRedraw(hwnd);
+                DoRedraw(hWindow);
                 break;
             case IDM_FILE_QUIT:
-                SendMessage(hwnd, WM_CLOSE, 0, 0);
+                SendMessage(hWindow, WM_CLOSE, 0, 0);
                 break;
             case IDM_TOOLS_REFRESH:
-                InvalidateRect(hwnd, 0, 1);
-                DoRedraw(hwnd);
+                InvalidateRect(hWindow, 0, 1);
+                DoRedraw(hWindow);
                 break;
             }
             break;
         }
 
-	    case WM_CLOSE: { DestroyWindow(hwnd); break; }
+	    case WM_CLOSE: { DestroyWindow(hWindow); break; }
 	    case WM_DESTROY: { PostQuitMessage(0); break; }
 	    default: break;
 	}
-	return DefWindowProc(hwnd, msg, wParam, lParam);
+	return DefWindowProc(hWindow, msg, wParam, lParam);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -118,18 +118,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPCWSTR szAppName = L"ECG Viewer";
 
 	//Registering the Window Class
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = 0;
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = MYCLASSNAME;;
-	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	wc.cbSize           = sizeof(WNDCLASSEX);
+	wc.style            = 0;
+	wc.lpfnWndProc      = WndProc;
+	wc.cbClsExtra       = 0;
+	wc.cbWndExtra       = 0;
+	wc.hInstance        = hInstance;
+	wc.hIcon            = LoadIcon(NULL, IDI_APPLICATION);
+	wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground    = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.lpszMenuName     = NULL;
+	wc.lpszClassName    = MYCLASSNAME;;
+	wc.hIconSm          = LoadIcon(NULL, IDI_APPLICATION);
 
 	if (!RegisterClassEx(&wc)) {
 		MessageBox(NULL, L"Window Registration Failed!", L"Error!",

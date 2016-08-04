@@ -77,13 +77,13 @@ void DrawSignal(HDC hDeviceContext, HWND hWindow){
     RECT  windowRect;
     RECT  textRect;
 
-	hSignalPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-    int xPos = padding_x;
-    int bottomPadding = 0.5 * EcgBigSquarePx();
-    int yOffset = 1.5 * EcgBigSquarePx();
-    int iTrackPoint = 0; int iSample = 0;
-    int pointsPerTrack = PointsPerTrack(hDeviceContext, hWindow);
-    int trackIndex = 0;
+	hSignalPen          = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+    int xPos            = padding_x;
+    int bottomPadding   = 0.5 * EcgBigSquarePx();
+    int yOffset         = 1.5 * EcgBigSquarePx();
+    int iTrackPoint     = 0; int iSample = 0;
+    int pointsPerTrack  = PointsPerTrack(hDeviceContext, hWindow);
+    int trackIndex      = 0;
 
 	SelectObject(hDeviceContext, hSignalPen);
     
