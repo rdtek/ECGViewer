@@ -1,0 +1,5 @@
+VERSION RELEASE NOTES
+
+Release 1.3 (9/19/2002):
+This release includes minor modifications to qrsdet2.cpp so that the performance of the QRS detector in qrsdet2.cpp conforms to EC13.  Specifically, a minimum detection threshold has been added and the blanking constant has been slightly modified.  I a separate file I have included the test files I used for adapting qrsdet2.cpp to EC13.
+	There are more substantial changes in the documentation document.  Previous release notes have been integrated into the documentation and the documentation has been layed out in a more organized fashion.
