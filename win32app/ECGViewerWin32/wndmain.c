@@ -27,7 +27,7 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
             
             hBtnPageLeft = CreateButtonW(hWindow, IDC_PAGELEFT_BUTTON, 
                 L"<", windowWidth - 100, 220, 100, 24);
-            hBtnPageRight = CreateButtonW(hWindow, IDC_PAGELEFT_BUTTON, 
+            hBtnPageRight = CreateButtonW(hWindow, IDC_PAGERIGHT_BUTTON, 
                 L">", 50, 220, 100, 24);
 
             windowCreated = true;
@@ -94,6 +94,14 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
             case IDM_TOOLS_REFRESH:
                 InvalidateRect(hWindow, 0, 1);
                 DoRedraw(hWindow);
+                break;
+            case IDC_PAGELEFT_BUTTON:
+                //TODO: implement paginate left
+                MessageBox(hWindow, L"TODO: paginate left.", L"TODO", MB_OKCANCEL);
+                break;
+            case IDC_PAGERIGHT_BUTTON:
+                //TODO: implement paginate right
+                MessageBox(hWindow, L"TODO: paginate right.", L"TODO", MB_OKCANCEL);
                 break;
             }
             break;
