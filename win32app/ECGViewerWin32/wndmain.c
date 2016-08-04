@@ -2,6 +2,7 @@
 
 bool windowCreated = false;
 WindowSize windowSize;
+HeartSignal heartSignal;
 
 VOID CALLBACK PaintTimerProc(HWND hwnd, UINT uMessage, UINT_PTR uEventId, DWORD dwTime) {
 	BOOL result = KillTimer(hwnd, uEventId);
@@ -67,11 +68,10 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	    case WM_PAINT:
         {
-            //OutputDebugString(TEXT("\nPAINT"));
             hDeviceContext = BeginPaint(hWindow, &ps);
             DrawGrid(hDeviceContext, hWindow);
             if (signalLoaded == 1 && wantDrawSignal >= 1) {
-                DrawSignal(hDeviceContext, hWindow);
+                DrawSignal(hDeviceContext, hWindow, &heartSignal);
                 //Save window size to avoid unnecessary redraw
                 SaveWindowSize(hWindow, &windowSize);
             }
@@ -83,7 +83,7 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             switch (LOWORD(wParam)) {
             case IDM_FILE_OPEN:
-                DoOpenFile(signalBuffer, maxSamples);
+                DoOpenFile(&heartSignal, maxSamples, openFileName);
                 wantDrawSignal = 1;
                 signalLoaded = 1;
                 DoRedraw(hWindow);
@@ -181,65 +181,4 @@ void AddMenus(HWND hwnd) {
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenuTools, L"&Tools");
 
 	SetMenu(hwnd, hMenubar);
-}
-
-void DoOpenFile(long* signalArray, int maxNum) {
-	WCHAR szFile[100];
-
-	ZeroMemory(&openFileName, sizeof(openFileName));
-	openFileName.lStructSize = sizeof(openFileName);
-	openFileName.hwndOwner = NULL;
-	openFileName.lpstrFile = szFile;
-	openFileName.lpstrFile[0] = '\0';
-	openFileName.nMaxFile = sizeof(szFile);
-	openFileName.lpstrFilter = L"All\0*.*\0Text\0*.TXT\0";
-	openFileName.nFilterIndex = 1;
-	openFileName.lpstrFileTitle = NULL;
-	openFileName.nMaxFileTitle = 0;
-	openFileName.lpstrInitialDir = NULL;
-	openFileName.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-	GetOpenFileName(&openFileName);
-
-	FILE * ptr_file = _wfopen(openFileName.lpstrFile, L"r");
-	//int numLines = CountFileLines(openFileName.lpstrFile);
-
-	if (ptr_file != NULL) {
-
-		int idxSignalArray = 0;
-		char strLine[128];
-
-		while (fgets(strLine, sizeof strLine, ptr_file) != NULL) {
-			signalArray[idxSignalArray] = strtol(strLine, NULL, 10);
-			idxSignalArray++;
-			//log_int("\nidxSignalArray: ", idxSignalArray);
-			if (idxSignalArray >= maxNum) break;
-		}
-		if (idxSignalArray >= 1) signalLoaded = 1;
-
-		fclose(ptr_file);
-
-	}
-
-	return;
-}
-
-int CountFileLines(const wchar_t* fileName) {
-	int numLines = 0;
-	int chr = 0;
-
-	log_wstr(L"ECG Filename: ", fileName);
-
-	FILE * ptr_file = _wfopen(fileName, L"r");
-	if (ptr_file != NULL) {
-		while (!feof(ptr_file)) {
-			chr = fgetc(ptr_file);
-			if (chr == '\n') {
-				numLines++;
-			}
-		}
-		fclose(ptr_file);
-	}
-
-	log_int("\nNumber of lines: ", numLines);
-	return numLines;
 }

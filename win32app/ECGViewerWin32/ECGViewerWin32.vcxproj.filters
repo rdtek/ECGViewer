@@ -21,13 +21,16 @@
     <ClCompile Include="logging.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ecgview.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wndmain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="windowtools.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="signalfileio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ecg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,13 +38,16 @@
     <ClInclude Include="logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ecgview.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="wndmain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="windowtools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="signalfileio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

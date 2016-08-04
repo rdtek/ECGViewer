@@ -144,14 +144,16 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ecgview.c" />
+    <ClCompile Include="ecg.c" />
     <ClCompile Include="logging.c" />
+    <ClCompile Include="signalfileio.c" />
     <ClCompile Include="windowtools.c" />
     <ClCompile Include="wndmain.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ecgview.h" />
+    <ClInclude Include="ecg.h" />
     <ClInclude Include="logging.h" />
+    <ClInclude Include="signalfileio.h" />
     <ClInclude Include="windowtools.h" />
     <ClInclude Include="wndmain.h" />
   </ItemGroup>

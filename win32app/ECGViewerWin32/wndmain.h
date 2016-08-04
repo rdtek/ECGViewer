@@ -1,15 +1,15 @@
 #pragma once
 #include <tchar.h>
 #include <wchar.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <windows.h>
 #include "windowtools.h"
 #include "logging.h"
-#include "ecgview.h"
+#include "ecg.h"
+#include "signalfileio.h"
 
-#define MYCLASSNAME             TEXT("MainWndClass")
-#define MYWINDOWNAME            TEXT("ECG Viewer (Win32)")
+#define MYCLASSNAME             L"MainWndClass"
+#define MYWINDOWNAME            L"ECG Viewer (Win32)"
 #define IDM_FILE_NEW            1
 #define IDM_FILE_OPEN           2
 #define IDM_FILE_QUIT           3
@@ -27,7 +27,5 @@ HWND            hBtnPageLeft;
 HWND            hBtnPageRight;
 
 void AddMenus(HWND hwnd);
-void DoOpenFile(long* signalArray, int maxNum);
-int CountFileLines(const wchar_t* fileName);
 void DoRedraw(HWND hwnd);
 VOID CALLBACK PaintTimerProc(HWND hwnd, UINT uMessage, UINT_PTR uEventId, DWORD dwTime);

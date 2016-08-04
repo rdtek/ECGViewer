@@ -1,4 +1,4 @@
-#include "ecgview.h"
+#include "ecg.h"
 
 int maxSamples = 100000;
 int padding_x = 20;
@@ -70,7 +70,7 @@ void DrawGridLines(HDC hDeviceContext, HWND hwnd, int interval){
 // Desc:   Draws rows of signal wave lines on top of ECG grid
 // Param:  hDeviceContext - Windows device context to draw to.
 // Param:  hWindow - handle to window containing device context.
-void DrawSignal(HDC hDeviceContext, HWND hWindow){
+void DrawSignal(HDC hDeviceContext, HWND hWindow, HeartSignal* heartSignal){
 
 	HPEN  hSignalPen;
     POINT points[2];
@@ -107,9 +107,9 @@ void DrawSignal(HDC hDeviceContext, HWND hWindow){
 			
             //Set the coordinates for start and end points of line
             points[0].x = xPos;
-            points[0].y = yOffset + (signalBuffer[iSample] * 0.1);
+            points[0].y = yOffset + (heartSignal->samples[iSample] * 0.1);
             points[1].x = padding_x + ScaleSignalXToPixels(iTrackPoint + 1);
-            points[1].y = yOffset + (signalBuffer[iSample + 1] * 0.1);
+            points[1].y = yOffset + (heartSignal->samples[iSample + 1] * 0.1);
             
             //Draw the line onto the device context
             Polyline(hDeviceContext, points, 2);
