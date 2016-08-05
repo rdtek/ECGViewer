@@ -18,9 +18,9 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 	HDC         hDeviceContext;
 	RECT        windowRect;
 
-	switch (msg)
-	{
-	    case WM_CREATE:
+    switch (msg)
+    {
+        case WM_CREATE:
         {
             AddMenus(hWindow);
             int windowWidth = GetWindowWidth(hWindow);
@@ -44,7 +44,7 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-	    case WM_SIZE:
+        case WM_SIZE:
         {
             if (GetClientRect(hWindow, &windowRect)) {
                 if (windowCreated == true) {
@@ -59,7 +59,7 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-	    case WM_EXITSIZEMOVE:
+        case WM_EXITSIZEMOVE:
         {
             wantDrawSignal = 1;
             if (WindowSizeChanged(hWindow, &windowSize) >= 1) {
@@ -68,7 +68,7 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-	    case WM_PAINT:
+        case WM_PAINT:
         {
             hDeviceContext = BeginPaint(hWindow, &ps);
             DrawGrid(hDeviceContext);
@@ -81,32 +81,33 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-	    case WM_COMMAND:
+        case WM_COMMAND:
         {
             switch (LOWORD(wParam)) {
-            case IDM_FILE_OPEN:
-                DoOpenFile(&m_heartSignal, maxSamples, openFileName);
-                SetECGSignal(&m_heartSignal);
-                wantDrawSignal = 1;
-                signalLoaded = 1;
-                DoRedraw(hWindow);
-                break;
-            case IDM_FILE_QUIT:         SendMessage(hWindow, WM_CLOSE, 0, 0);
-                break;
-            case IDM_TOOLS_REFRESH:     InvalidateRect(hWindow, 0, 1); DoRedraw(hWindow);
-                break;
-            case IDC_PAGELEFT_BUTTON:   if(DecrementPagination() == 1) DoRedraw(hWindow);
-                break;
-            case IDC_PAGERIGHT_BUTTON:  if(IncrementPagination() == 1) DoRedraw(hWindow);
-                break;
+                case IDM_FILE_OPEN:
+                    DoOpenFile(&m_heartSignal, maxSamples, openFileName);
+                    SetECGSignal(&m_heartSignal);
+                    wantDrawSignal = 1;
+                    signalLoaded = 1;
+                    DoRedraw(hWindow);
+                    break;
+                case IDM_FILE_QUIT:         SendMessage(hWindow, WM_CLOSE, 0, 0);
+                    break;
+                case IDM_TOOLS_REFRESH:     InvalidateRect(hWindow, 0, 1); DoRedraw(hWindow);
+                    break;
+                case IDC_PAGELEFT_BUTTON:   if(DecrementPagination() == 1) DoRedraw(hWindow);
+                    break;
+                case IDC_PAGERIGHT_BUTTON:  if(IncrementPagination() == 1) DoRedraw(hWindow);
+                    break;
             }
             break;
         }
 
-	    case WM_CLOSE: { DestroyWindow(hWindow); break; }
-	    case WM_DESTROY: { PostQuitMessage(0); break; }
-	    default: break;
-	}
+        case WM_CLOSE: { DestroyWindow(hWindow); break; }
+        case WM_DESTROY: { PostQuitMessage(0); break; }
+        default: break;
+    }
+
 	return DefWindowProc(hWindow, msg, wParam, lParam);
 }
 

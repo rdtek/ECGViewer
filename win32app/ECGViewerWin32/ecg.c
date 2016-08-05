@@ -174,13 +174,16 @@ void DrawSignal(HDC hDeviceContext){
 // Param:   sampleIndex - the sample index at the start of the track.
 // Param:   positionRect - rectangle struct to draw text in position.
 void DrawTrackStartTime(HDC hDeviceContext, int sampleIndex, RECT positionRect) {
-    int trackTimeMs = sampleIndex *  1000 / sampleFrequency;
-    double seconds  = (double)trackTimeMs / 1000;
+    
+    int trackTimeMs         = sampleIndex *  1000 / sampleFrequency;
+    double seconds          = (double)trackTimeMs / 1000;
     double remainderSeconds = seconds - floor(seconds / 60) * 60;
-    double minutes  = floor(seconds / 60);
-    double hours    = floor(minutes / 60);
+    double minutes          = floor(seconds / 60);
+    double remainderMinutes = minutes - floor(minutes / 60) * 60;
+    double hours            = floor(minutes / 60);
+    
     wchar_t timeLabelBuff[256];
-    swprintf(timeLabelBuff, 30, L"Time: %.0f:%.0f:%.1f", hours, minutes, remainderSeconds);
+    swprintf(timeLabelBuff, 30, L"Time: %02.0f:%02.0f:%04.1f", hours, remainderMinutes, remainderSeconds);
     DrawText(hDeviceContext, timeLabelBuff, -1, &positionRect, DT_SINGLELINE | DT_NOCLIP);
 }
 
