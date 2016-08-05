@@ -1,6 +1,7 @@
 #pragma once
 #include <windows.h>
 #include <math.h>
+#include "windowtools.h"
 #include "logging.h"
 
 typedef struct {
@@ -13,27 +14,13 @@ int maxSamples;
 int padding_x;
 int sampleFrequency;
 
-void DrawGrid
-    (HDC hdc, HWND hwnd);
-
-void DrawGridLines
-    (HDC hdc, HWND hwnd, int interval);
-
-void DrawSignal
-    (HDC hDeviceContext, HWND hWindow, HeartSignal* heartSignal);
-
-void DrawTrackStartTime
-    (HDC hDeviceContext, HWND hWindow, int trackIndex, RECT positionRect);
-
-int PointsPerTrack
-    (HDC hdc, HWND hwnd);
-
-int TrackWidthPx
-    (HWND hwnd);
-
-int ScaleSignalXToPixels
-    (int sampleIndex);
-
+void SetECGSignal(HeartSignal* signal);
+void DrawGrid(HDC hdc);
+void DrawGridLines(HDC hdc, int interval);
+void DrawSignal(HDC hDeviceContext);
+void DrawTrackStartTime(HDC hDeviceContext, int trackIndex, RECT positionRect);
+int PointsPerTrack();
+int TrackWidthPx();
+int ScaleSignalXToPixels(int sampleIndex);
 int EcgBigSquarePx();
-
 double EcgSmallSquarePx();

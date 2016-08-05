@@ -15,5 +15,17 @@ int GetWindowWidth
 int GetWindowHeight
     (HWND hWindow);
 
+int GetClientWidth
+    (HWND hWindow);
+
+int GetClientHeight
+    (HWND hWindow);
+
+int GetRectWidth
+    (RECT rect);
+
+int GetRectHeight
+    (RECT rect);
+
 HWND CreateButtonW
     (HWND hWindow, int btnId, LPCSTR lpButtonText, int x, int y, int width, int height);

@@ -21,21 +21,35 @@ BOOL WindowSizeChanged(HWND hwnd, WindowSize* oldSize) {
 }
 
 int GetWindowWidth(HWND hWindow) {
-    RECT windowRect;
-    int windowWidth = -1;
-    if (GetWindowRect(hWindow, &windowRect)) {
-        windowWidth = windowRect.right - windowRect.left;
-    }
-    return windowWidth;
+    RECT rect;
+    return GetWindowRect(hWindow, &rect) 
+        ? GetRectWidth(rect) : -1;
 }
 
 int GetWindowHeight(HWND hWindow) {
-    RECT windowRect;
-    int windowHeight = -1;
-    if (GetWindowRect(hWindow, &windowRect)) {
-        windowHeight = windowRect.bottom - windowRect.top;
-    }
-    return windowHeight;
+    RECT rect;
+    return GetWindowRect(hWindow, &rect) 
+        ? GetRectHeight(rect) : -1;
+}
+
+int GetClientWidth(HWND hWindow) {
+    RECT rect;
+    return GetClientRect(hWindow, &rect) 
+        ? GetRectWidth(rect) : -1;
+}
+
+int GetClientHeight(HWND hWindow) {
+    RECT rect;
+    return GetClientRect(hWindow, &rect)
+        ? GetRectHeight(rect) : -1;
+}
+
+int GetRectWidth(RECT rect) {
+    return rect.right - rect.left;
+}
+
+int GetRectHeight(RECT rect) {
+    return rect.bottom - rect.top;
 }
 
 HWND CreateButtonW(HWND hWindow, int btnId, LPCSTR lpButtonText, int x, int y, int width, int height) {

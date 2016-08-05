@@ -2,7 +2,7 @@
 
 bool windowCreated = false;
 WindowSize windowSize;
-HeartSignal heartSignal;
+HeartSignal m_heartSignal;
 
 VOID CALLBACK PaintTimerProc(HWND hwnd, UINT uMessage, UINT_PTR uEventId, DWORD dwTime) {
 	BOOL result = KillTimer(hwnd, uEventId);
@@ -29,6 +29,8 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
                 L"<", windowWidth - 100, 220, 100, 24);
             hBtnPageRight = CreateButtonW(hWindow, IDC_PAGERIGHT_BUTTON, 
                 L">", 50, 220, 100, 24);
+
+            InitECG(hWindow);
 
             windowCreated = true;
             break;
@@ -69,9 +71,9 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 	    case WM_PAINT:
         {
             hDeviceContext = BeginPaint(hWindow, &ps);
-            DrawGrid(hDeviceContext, hWindow);
+            DrawGrid(hDeviceContext);
             if (signalLoaded == 1 && wantDrawSignal >= 1) {
-                DrawSignal(hDeviceContext, hWindow, &heartSignal);
+                DrawSignal(hDeviceContext);
                 //Save window size to avoid unnecessary redraw
                 SaveWindowSize(hWindow, &windowSize);
             }
@@ -83,25 +85,19 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             switch (LOWORD(wParam)) {
             case IDM_FILE_OPEN:
-                DoOpenFile(&heartSignal, maxSamples, openFileName);
+                DoOpenFile(&m_heartSignal, maxSamples, openFileName);
+                SetECGSignal(&m_heartSignal);
                 wantDrawSignal = 1;
                 signalLoaded = 1;
                 DoRedraw(hWindow);
                 break;
-            case IDM_FILE_QUIT:
-                SendMessage(hWindow, WM_CLOSE, 0, 0);
+            case IDM_FILE_QUIT:         SendMessage(hWindow, WM_CLOSE, 0, 0);
                 break;
-            case IDM_TOOLS_REFRESH:
-                InvalidateRect(hWindow, 0, 1);
-                DoRedraw(hWindow);
+            case IDM_TOOLS_REFRESH:     InvalidateRect(hWindow, 0, 1); DoRedraw(hWindow);
                 break;
-            case IDC_PAGELEFT_BUTTON:
-                //TODO: implement paginate left
-                MessageBox(hWindow, L"TODO: paginate left.", L"TODO", MB_OKCANCEL);
+            case IDC_PAGELEFT_BUTTON:   if(DecrementPagination() == 1) DoRedraw(hWindow);
                 break;
-            case IDC_PAGERIGHT_BUTTON:
-                //TODO: implement paginate right
-                MessageBox(hWindow, L"TODO: paginate right.", L"TODO", MB_OKCANCEL);
+            case IDC_PAGERIGHT_BUTTON:  if(IncrementPagination() == 1) DoRedraw(hWindow);
                 break;
             }
             break;
