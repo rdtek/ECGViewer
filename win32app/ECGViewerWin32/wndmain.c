@@ -95,6 +95,12 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
                     break;
                 case IDM_TOOLS_REFRESH:     InvalidateRect(hWindow, 0, 1); DoRedraw(hWindow);
                     break;
+                case IDM_TOOLS_GENERATESIGNAL: 
+                    GenerateSignal();
+                    //TODO: draw the generated signal
+                    MessageBox(NULL, L"Generated signal, check logfile C:\\temp\\ecg_log.txt", L"Action complete.",
+                        MB_ICONINFORMATION | MB_OK);
+                    break;
                 case IDC_PAGELEFT_BUTTON:   if(DecrementPagination() == 1) DoRedraw(hWindow);
                     break;
                 case IDC_PAGERIGHT_BUTTON:  if(IncrementPagination() == 1) DoRedraw(hWindow);
@@ -183,6 +189,7 @@ void AddMenus(HWND hwnd) {
 
 	hMenuTools = CreateMenu();
 	AppendMenuW(hMenuTools, MF_STRING, IDM_TOOLS_REFRESH, L"&Refresh");
+    AppendMenuW(hMenuTools, MF_STRING, IDM_TOOLS_GENERATESIGNAL, L"&Generate Signal");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenuTools, L"&Tools");
 
 	SetMenu(hwnd, hMenubar);

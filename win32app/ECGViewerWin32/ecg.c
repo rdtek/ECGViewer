@@ -13,6 +13,26 @@ void InitECG(HWND hWindow) {
     m_hWindow = hWindow;
 }
 
+// Name:   NormalDistributionPDF
+// Desc:   Calculate the Probability Density Function (y) value 
+//         for a normal distribution curve 
+double NormalDistributionPDF(double x, double mu, double variance) {
+    double oneOverSqrt2VarPi = 1 / sqrt(2 * variance * M_PI);
+    double expo = exp(-1 * pow((x - mu), 2) / (2 * pow(variance, 2)));
+    return oneOverSqrt2VarPi * expo;
+}
+
+// Name:   GenerateSignal
+// Desc:   Generate a simulated ECG signal and save to file.
+void GenerateSignal() {
+    //Note: currently only makes normal distribution curve,
+    //need to add in logic to draw the QRS segments.
+    for (double x = -3; x <= 3; x += 0.1) {
+        double xpdf = NormalDistributionPDF(x, 0, 1);
+        log_dbl("x", xpdf);
+    }
+}
+
 void SetECGSignal(HeartSignal* signal) {
     m_heartSignal = signal;
 }
@@ -22,6 +42,7 @@ void SetECGSignal(HeartSignal* signal) {
 //         the next page of ECG data will be drawn.
 int IncrementPagination() {
     int result = 0;
+    if (m_heartSignal == NULL) return 0;
     int totalPages = TotalPages();
     //Check there are pages remaining
     if (m_currentPageNum < totalPages) {
@@ -36,6 +57,7 @@ int IncrementPagination() {
 //         the previous page of ECG data will be drawn.
 int DecrementPagination() {
     int result = 0;
+    if (m_heartSignal == NULL) return 0;
     if (m_currentPageNum >= 1) {
         m_currentPageNum--;
         result = 1;

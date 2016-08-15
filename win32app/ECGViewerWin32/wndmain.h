@@ -8,12 +8,13 @@
 #include "ecg.h"
 #include "signalfileio.h"
 
-#define MYCLASSNAME             L"MainWndClass"
-#define MYWINDOWNAME            L"ECG Viewer (Win32)"
-#define IDM_FILE_NEW            1
-#define IDM_FILE_OPEN           2
-#define IDM_FILE_QUIT           3
-#define IDM_TOOLS_REFRESH       4
+#define MYCLASSNAME              L"MainWndClass"
+#define MYWINDOWNAME             L"ECG Viewer (Win32)"
+#define IDM_FILE_NEW             1
+#define IDM_FILE_OPEN            2
+#define IDM_FILE_QUIT            3
+#define IDM_TOOLS_REFRESH        4
+#define IDM_TOOLS_GENERATESIGNAL 5
 #define IDC_PAGELEFT_BUTTON     101
 #define IDC_PAGERIGHT_BUTTON    102
 

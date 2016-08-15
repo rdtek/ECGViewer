@@ -1,4 +1,5 @@
 #pragma once
+#define _USE_MATH_DEFINES
 #include <windows.h>
 #include <math.h>
 #include "windowtools.h"
@@ -14,6 +15,8 @@ int maxSamples;
 int padding_x;
 int sampleFrequency;
 
+void GenerateSignal();
+double NormalDistributionPDF(double x, double mu, double variance);
 void SetECGSignal(HeartSignal* signal);
 void DrawGrid(HDC hdc);
 void DrawGridLines(HDC hdc, int interval);
