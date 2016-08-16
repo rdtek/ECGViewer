@@ -101,8 +101,7 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
                     wantDrawSignal = 1;
                     signalLoaded = 1;
                     DoRedraw(hWindow);
-                    MessageBox(NULL, L"Generated signal, check logfile C:\\temp\\ecg_log.txt",
-                        L"Action complete.", MB_ICONINFORMATION | MB_OK);
+                    MessageBox(NULL, L"Generated signal.", L"Action complete.", MB_ICONINFORMATION | MB_OK);
                     break;
                 case IDC_PAGELEFT_BUTTON:   if(DecrementPagination() == 1) DoRedraw(hWindow);
                     break;

@@ -28,9 +28,10 @@ void GenerateSignal(HeartSignal* ptr_signal) {
 
     int indexSamples = 0;
     ptr_signal->numberOfSamples = 0;
+    size_t numBeats = 50;
 
     //Generate each part of the heartbeat waveform
-    for (size_t i = 0; i < 20; i++) {
+    for (size_t i = 0; i < numBeats; i++) {
 
         //1. Flatline
         GenerateFlatLine(ptr_signal, 300);
@@ -39,13 +40,13 @@ void GenerateSignal(HeartSignal* ptr_signal) {
         GeneratePWave(ptr_signal);
 
         //3. PR segment
-        GenerateFlatLine(ptr_signal, 100);
+        GenerateFlatLine(ptr_signal, 50);
 
         //4. QRS complex
         GenerateQRSComplex(ptr_signal);
 
         //5. ST segment
-        GenerateFlatLine(ptr_signal, 100);
+        GenerateFlatLine(ptr_signal, 50);
 
         //6. T wave
         GenerateTWave(ptr_signal);
@@ -69,12 +70,11 @@ void GenerateFlatLine(HeartSignal* ptr_signal, size_t length) {
 // Desc:   Generate the P-Wave segment of the heartbeat signal.
 void GeneratePWave(HeartSignal* ptr_signal) {
     int sampleIndex = ptr_signal->numberOfSamples - 1;
-    double scaleFactor = 800;
+    double scaleFactor = 200;
 
     //Use Normal Distribution to generate P-Wave curve
     for (double x = -3; x <= 3; x += 0.1) {
-        double xpdf = scaleFactor * NormalDistributionPDF(x, 0, 1);
-        //log_dbl("x", xpdf);
+        double xpdf = scaleFactor * NormalDistributionPDF(x, 0, 2);
         ptr_signal->samples[sampleIndex] = xpdf;
         ptr_signal->numberOfSamples++;
         sampleIndex++;
@@ -82,19 +82,63 @@ void GeneratePWave(HeartSignal* ptr_signal) {
 }
 
 // Name:   GenerateQRSComplex
-// Desc:   Generate the QRS segment of the heartbeat signal.
+// Desc:   Generate the QRS part of the heartbeat signal.
 void GenerateQRSComplex(HeartSignal* ptr_signal) {
-    //TODO: calculate the y coords for the QRS points
-    int sampleIndex = ptr_signal->numberOfSamples - 1;
+
+    int sampleIndex = ptr_signal->numberOfSamples;
+
+    //'Q' part - dip down
+    for (size_t i = 0; i < 50; i++) {
+        double nextY = ptr_signal->samples[sampleIndex - 1] - 2;
+        ptr_signal->samples[sampleIndex] = nextY;
+        ptr_signal->numberOfSamples++;
+        sampleIndex++;
+    }
+
+    //'R' part - jump up
+    //Use Normal Distribution to generate R-Wave spike
+    //TODO: or should I simply use a steep linear gradient?
+    double scaleFactor = 800;
+    for (double x = -3; x <= 3; x += 0.1) {
+        double nextY = scaleFactor * NormalDistributionPDF(x, 0, 1);
+        ptr_signal->samples[sampleIndex] = nextY;
+        ptr_signal->numberOfSamples++;
+        sampleIndex++;
+    }
+
+    //'S' part - dip down below baseline
+    double sSteepness = 9;
+    for (size_t i = 0; i < 20; i++) {
+        double nextY = ptr_signal->samples[sampleIndex - 1] - sSteepness;
+        ptr_signal->samples[sampleIndex] = nextY;
+        ptr_signal->numberOfSamples++;
+        sampleIndex++;
+    }
+
+    //Come back up to baseline
+    for (size_t i = 0; i < 20; i++) {
+        double nextY = ptr_signal->samples[sampleIndex - 1] + sSteepness;
+        ptr_signal->samples[sampleIndex] = nextY;
+        ptr_signal->numberOfSamples++;
+        sampleIndex++;
+    }
+
     //ptr_signal->samples[sampleIndex] = 
 }
 
 // Name:   GenerateTWave
 // Desc:   Generate the T-Wave segment of the heartbeat signal.
 void GenerateTWave(HeartSignal* ptr_signal) {
-    //TODO: calculate the y coords T-Wave curve
-    int sampleIndex = ptr_signal->numberOfSamples - 1;
-    //ptr_signal->samples[sampleIndex] = 
+
+    int sampleIndex = ptr_signal->numberOfSamples;
+    //Use Normal Distribution to generate T-Wave curve
+    double scaleFactor = 200;
+    for (double x = -3; x <= 3; x += 0.1) {
+        double nextY = scaleFactor * NormalDistributionPDF(x, 0, 2);
+        ptr_signal->samples[sampleIndex] = nextY;
+        ptr_signal->numberOfSamples++;
+        sampleIndex++;
+    }
 }
 
 
