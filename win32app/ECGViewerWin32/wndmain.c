@@ -96,10 +96,13 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
                 case IDM_TOOLS_REFRESH:     InvalidateRect(hWindow, 0, 1); DoRedraw(hWindow);
                     break;
                 case IDM_TOOLS_GENERATESIGNAL: 
-                    GenerateSignal();
-                    //TODO: draw the generated signal
-                    MessageBox(NULL, L"Generated signal, check logfile C:\\temp\\ecg_log.txt", L"Action complete.",
-                        MB_ICONINFORMATION | MB_OK);
+                    GenerateSignal(&m_heartSignal);
+                    SetECGSignal(&m_heartSignal);
+                    wantDrawSignal = 1;
+                    signalLoaded = 1;
+                    DoRedraw(hWindow);
+                    MessageBox(NULL, L"Generated signal, check logfile C:\\temp\\ecg_log.txt",
+                        L"Action complete.", MB_ICONINFORMATION | MB_OK);
                     break;
                 case IDC_PAGELEFT_BUTTON:   if(DecrementPagination() == 1) DoRedraw(hWindow);
                     break;

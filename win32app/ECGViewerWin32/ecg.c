@@ -23,15 +23,80 @@ double NormalDistributionPDF(double x, double mu, double variance) {
 }
 
 // Name:   GenerateSignal
-// Desc:   Generate a simulated ECG signal and save to file.
-void GenerateSignal() {
-    //Note: currently only makes normal distribution curve,
-    //need to add in logic to draw the QRS segments.
-    for (double x = -3; x <= 3; x += 0.1) {
-        double xpdf = NormalDistributionPDF(x, 0, 1);
-        log_dbl("x", xpdf);
+// Desc:   Generate a simulated ECG signal.
+void GenerateSignal(HeartSignal* ptr_signal) {
+
+    int indexSamples = 0;
+    ptr_signal->numberOfSamples = 0;
+
+    //Generate each part of the heartbeat waveform
+    for (size_t i = 0; i < 20; i++) {
+
+        //1. Flatline
+        GenerateFlatLine(ptr_signal, 300);
+
+        //2. P wave
+        GeneratePWave(ptr_signal);
+
+        //3. PR segment
+        GenerateFlatLine(ptr_signal, 100);
+
+        //4. QRS complex
+        GenerateQRSComplex(ptr_signal);
+
+        //5. ST segment
+        GenerateFlatLine(ptr_signal, 100);
+
+        //6. T wave
+        GenerateTWave(ptr_signal);
+    }
+
+}
+
+// Name:   GenerateFlatLine
+// Desc:   Generate a flat line segment of the heartbeat signal.
+void GenerateFlatLine(HeartSignal* ptr_signal, size_t length) {
+    size_t maxLength = 1000;
+    int sampleIndex = ptr_signal->numberOfSamples - 1;
+    for (size_t i = 0; i < length && i < maxLength; i++) {
+        ptr_signal->samples[sampleIndex] = 0;
+        ptr_signal->numberOfSamples++;
+        sampleIndex++;
     }
 }
+
+// Name:   GeneratePWave
+// Desc:   Generate the P-Wave segment of the heartbeat signal.
+void GeneratePWave(HeartSignal* ptr_signal) {
+    int sampleIndex = ptr_signal->numberOfSamples - 1;
+    double scaleFactor = 800;
+
+    //Use Normal Distribution to generate P-Wave curve
+    for (double x = -3; x <= 3; x += 0.1) {
+        double xpdf = scaleFactor * NormalDistributionPDF(x, 0, 1);
+        //log_dbl("x", xpdf);
+        ptr_signal->samples[sampleIndex] = xpdf;
+        ptr_signal->numberOfSamples++;
+        sampleIndex++;
+    }
+}
+
+// Name:   GenerateQRSComplex
+// Desc:   Generate the QRS segment of the heartbeat signal.
+void GenerateQRSComplex(HeartSignal* ptr_signal) {
+    //TODO: calculate the y coords for the QRS points
+    int sampleIndex = ptr_signal->numberOfSamples - 1;
+    //ptr_signal->samples[sampleIndex] = 
+}
+
+// Name:   GenerateTWave
+// Desc:   Generate the T-Wave segment of the heartbeat signal.
+void GenerateTWave(HeartSignal* ptr_signal) {
+    //TODO: calculate the y coords T-Wave curve
+    int sampleIndex = ptr_signal->numberOfSamples - 1;
+    //ptr_signal->samples[sampleIndex] = 
+}
+
 
 void SetECGSignal(HeartSignal* signal) {
     m_heartSignal = signal;
@@ -139,7 +204,8 @@ void DrawSignal(HDC hDeviceContext){
     int xPos            = padding_x;
     int bottomPadding   = 0.5 * EcgBigSquarePx();
     int yOffset         = 1.5 * EcgBigSquarePx();
-    int iTrackPoint     = 0; int iSample = 0;
+    int iTrackPoint     = 0; 
+    int iSample         = 0;
     int pointsOneTrack  = PointsPerTrack(hDeviceContext, m_hWindow);
     int trackNum        = 0;
 
@@ -159,7 +225,9 @@ void DrawSignal(HDC hDeviceContext){
         //Get the starting sample for the current page
         iSample = pointsOneTrack * maxTracksPerPage * m_currentPageNum;
         
-        for (iTrackPoint = 0; iSample < maxSamples - 1; iTrackPoint += 1, iSample += 1) {
+        for (iTrackPoint = 0, iSample = 0; 
+            iSample < maxSamples - 1 && iSample < m_heartSignal->numberOfSamples;
+            iTrackPoint += 1, iSample += 1) {
 
             //Draw the track start time label
             if (iTrackPoint == 0) 
@@ -167,9 +235,9 @@ void DrawSignal(HDC hDeviceContext){
 			
             //Set the coordinates for start and end points of line
             points[0].x = xPos;
-            points[0].y = yOffset + (m_heartSignal->samples[iSample] * sampleResolution);
+            points[0].y = yOffset + (-1) * (m_heartSignal->samples[iSample] * sampleResolution);
             points[1].x = padding_x + ScaleSignalXToPixels(iTrackPoint + 1);
-            points[1].y = yOffset + (m_heartSignal->samples[iSample + 1] * sampleResolution);
+            points[1].y = yOffset + (-1) * (m_heartSignal->samples[iSample + 1] * sampleResolution);
             
             //Draw the line onto the device context
             Polyline(hDeviceContext, points, 2);

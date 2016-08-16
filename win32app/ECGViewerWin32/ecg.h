@@ -7,7 +7,7 @@
 
 typedef struct {
     LPCSTR label;
-    short samples[1000000];
+    double samples[1000000];
     int numberOfSamples;
 } HeartSignal;
 
@@ -15,7 +15,11 @@ int maxSamples;
 int padding_x;
 int sampleFrequency;
 
-void GenerateSignal();
+void GenerateSignal(HeartSignal* ptr_signal);
+void GenerateFlatLine(HeartSignal* ptr_signal, size_t length);
+void GeneratePWave(HeartSignal* ptr_signal);
+void GenerateQRSComplex(HeartSignal* ptr_signal);
+void GenerateTWave(HeartSignal* ptr_signal);
 double NormalDistributionPDF(double x, double mu, double variance);
 void SetECGSignal(HeartSignal* signal);
 void DrawGrid(HDC hdc);
