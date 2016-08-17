@@ -28,4 +28,4 @@ int GetRectHeight
     (RECT rect);
 
 HWND CreateButtonW
-    (HWND hWindow, int btnId, LPCSTR lpButtonText, int x, int y, int width, int height);
+    (HWND hWindow, int btnId, LPCWSTR lpButtonText, int x, int y, int width, int height);

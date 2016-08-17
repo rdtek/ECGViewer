@@ -15,22 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="logging.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wndmain.c">
+    <ClCompile Include="wndmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windowtools.c">
+    <ClCompile Include="windowtools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="signalfileio.c">
+    <ClCompile Include="signalfileio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ecg.c">
+    <ClCompile Include="ecg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -48,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ecg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="appconstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

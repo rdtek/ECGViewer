@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <windows.h>
 #include <math.h>
+#include "appconstants.h"
 #include "windowtools.h"
 #include "logging.h"
 
@@ -11,13 +12,15 @@ typedef struct {
     int numberOfSamples;
 } HeartSignal;
 
-int maxSamples;
-int padding_x;
-int sampleFrequency;
+//int padding_x;
+//int sampleFrequency;
+
+void InitECG(HWND hWindow);
+int IncrementPagination();
+int DecrementPagination();
 
 void GenerateSignal(HeartSignal* ptr_signal);
 void GenerateLine(HeartSignal* ptr_signal, size_t length, double gradient);
-void GenerateQRSComplex(HeartSignal* ptr_signal);
 double CalculateGausianPDF(double x, double mu, double variance);
 void GenerateGausianCurve(HeartSignal* ptr_signal, double mu, double variance, double scaleFactor);
 
@@ -26,8 +29,13 @@ void DrawGrid(HDC hdc);
 void DrawGridLines(HDC hdc, int interval);
 void DrawSignal(HDC hDeviceContext);
 void DrawTrackStartTime(HDC hDeviceContext, int trackIndex, RECT positionRect);
+
+int MaxTracksPerPage();
 int PointsPerTrack();
 int TrackWidthPx();
+int TrackHeightPx();
 int ScaleSignalXToPixels(int sampleIndex);
 int EcgBigSquarePx();
 double EcgSmallSquarePx();
+int TotalPages();
+int PaddingBottom();

@@ -90,6 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,16 +142,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ecg.c" />
+    <ClCompile Include="ecg.cpp" />
     <ClCompile Include="logging.c" />
-    <ClCompile Include="signalfileio.c" />
-    <ClCompile Include="windowtools.c" />
-    <ClCompile Include="wndmain.c" />
+    <ClCompile Include="signalfileio.cpp" />
+    <ClCompile Include="windowtools.cpp" />
+    <ClCompile Include="wndmain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="appconstants.h" />
     <ClInclude Include="ecg.h" />
     <ClInclude Include="logging.h" />
     <ClInclude Include="signalfileio.h" />

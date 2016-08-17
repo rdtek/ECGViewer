@@ -1,6 +1,5 @@
 #include "ecg.h"
 
-int maxSamples          = 100000;
 int padding_x           = 20;
 int sampleFrequency     = 500;
 double sampleResolution = 0.1;
@@ -194,7 +193,7 @@ void DrawSignal(HDC hDeviceContext){
     int yOffset         = 1.5 * EcgBigSquarePx();
     int iTrackPoint     = 0; 
     int iSample         = 0;
-    int pointsOneTrack  = PointsPerTrack(hDeviceContext, m_hWindow);
+    int pointsOneTrack  = PointsPerTrack();
     int trackNum        = 0;
 
 	SelectObject(hDeviceContext, hSignalPen);
@@ -214,7 +213,7 @@ void DrawSignal(HDC hDeviceContext){
         iSample = pointsOneTrack * maxTracksPerPage * m_currentPageNum;
         
         for (iTrackPoint = 0, iSample = 0; 
-            iSample < maxSamples - 1 && iSample < m_heartSignal->numberOfSamples;
+            iSample < MAX_SAMPLES - 1 && iSample < m_heartSignal->numberOfSamples;
             iTrackPoint += 1, iSample += 1) {
 
             //Draw the track start time label
@@ -312,7 +311,7 @@ int TrackWidthPx(){
 // Returns: Integer number of tracks.
 int MaxTracksPerPage() {
     int clientHeight = GetClientHeight(m_hWindow);
-    return (clientHeight - PaddingBottom()) / TrackHeight();
+    return (clientHeight - PaddingBottom()) / TrackHeightPx();
 }
 
 // Name:    TotalTracks
@@ -325,6 +324,7 @@ int TotalTracks() {
 
 int TotalPages() {
     int total = ceil(TotalTracks() / MaxTracksPerPage());
+    return total;
 }
 
 // Name:    EcgBigSquarePx
@@ -345,7 +345,7 @@ int PaddingBottom() {
     return 0.5 * EcgBigSquarePx();
 }
 
-int TrackHeight() {
+int TrackHeightPx() {
     return 2 * EcgBigSquarePx();
 }
 
@@ -353,6 +353,6 @@ int TrackHeight() {
 // Desc:    Get the total time in milliseconds represented by one track.
 // Returns: Duration of one track in milliseconds as integer.
 int TrackDurationMs(){
-    float trackDurationMs = TrackWidthPx(m_hWindow) / (float)EcgBigSquarePx() * 1000;
+    float trackDurationMs = TrackWidthPx() / (float)EcgBigSquarePx() * 1000;
     return (int)round(trackDurationMs);
 }

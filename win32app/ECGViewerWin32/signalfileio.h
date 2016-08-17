@@ -4,7 +4,7 @@
 #include "ecg.h"
 
 void DoOpenFile
-    (HeartSignal* heartSignal, int maxNum, OPENFILENAME openFileName);
+(HeartSignal* heartSignal, int maxNum, LPWSTR fileNameOut);
 
 int CountFileLines
     (const wchar_t* fileName);

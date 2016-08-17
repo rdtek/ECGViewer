@@ -52,8 +52,8 @@ int GetRectHeight(RECT rect) {
     return rect.bottom - rect.top;
 }
 
-HWND CreateButtonW(HWND hWindow, int btnId, LPCSTR lpButtonText, int x, int y, int width, int height) {
-    return CreateWindowW(L"BUTTON", lpButtonText,
+HWND CreateButtonW(HWND hWindow, int btnId, LPCWSTR lpButtonText, int x, int y, int width, int height) {
+    return CreateWindow(L"BUTTON", lpButtonText,
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
         x, y, width, height, hWindow, (HMENU)btnId,
         GetModuleHandle(NULL), NULL);

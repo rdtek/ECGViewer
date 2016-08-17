@@ -83,40 +83,68 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_COMMAND:
         {
-            switch (LOWORD(wParam)) {
-                case IDM_FILE_OPEN:
-                    DoOpenFile(&m_heartSignal, maxSamples, openFileName);
-                    SetECGSignal(&m_heartSignal);
-                    wantDrawSignal = 1;
-                    signalLoaded = 1;
-                    DoRedraw(hWindow);
-                    break;
-                case IDM_FILE_QUIT:         SendMessage(hWindow, WM_CLOSE, 0, 0);
-                    break;
-                case IDM_TOOLS_REFRESH:     InvalidateRect(hWindow, 0, 1); DoRedraw(hWindow);
-                    break;
-                case IDM_TOOLS_GENERATESIGNAL: 
-                    GenerateSignal(&m_heartSignal);
-                    SetECGSignal(&m_heartSignal);
-                    wantDrawSignal = 1;
-                    signalLoaded = 1;
-                    DoRedraw(hWindow);
-                    MessageBox(NULL, L"Generated signal.", L"Action complete.", MB_ICONINFORMATION | MB_OK);
-                    break;
-                case IDC_PAGELEFT_BUTTON:   if(DecrementPagination() == 1) DoRedraw(hWindow);
-                    break;
-                case IDC_PAGERIGHT_BUTTON:  if(IncrementPagination() == 1) DoRedraw(hWindow);
-                    break;
-            }
+            HandleWMCommand(hWindow, LOWORD(wParam));
             break;
         }
 
         case WM_CLOSE: { DestroyWindow(hWindow); break; }
         case WM_DESTROY: { PostQuitMessage(0); break; }
+        
         default: break;
     }
 
 	return DefWindowProc(hWindow, msg, wParam, lParam);
+}
+
+void SetWindowTitle(HWND hWindow, LPWSTR extraTitle) {
+    //Set the window title text
+    std::wstring wsFileName(extraTitle);
+    std::wstring wsWindowTitle = std::wstring(MYWINDOWNAME) + std::wstring(L" ") + wsFileName;
+    SetWindowText(hWindow, wsWindowTitle.c_str());
+}
+
+void HandleWMCommand(HWND hWindow, WORD w) {
+    
+    //Variable to store filename from open file dialogue
+    WCHAR fileName[100];
+
+    switch (w) {
+        case IDM_FILE_OPEN:
+            DoOpenFile(&m_heartSignal, MAX_SAMPLES, fileName);
+            SetWindowTitle(hWindow, fileName);
+            SetECGSignal(&m_heartSignal);
+            wantDrawSignal = 1;
+            signalLoaded = 1;
+            DoRedraw(hWindow);
+            break;
+
+        case IDM_FILE_QUIT:
+            SendMessage(hWindow, WM_CLOSE, 0, 0);
+            break;
+
+        case IDM_TOOLS_REFRESH:
+            InvalidateRect(hWindow, 0, 1); DoRedraw(hWindow);
+            break;
+
+        case IDM_TOOLS_GENERATESIGNAL:
+            GenerateSignal(&m_heartSignal);
+            SetWindowTitle(hWindow, L"");
+            SetECGSignal(&m_heartSignal);
+            wantDrawSignal = 1;
+            signalLoaded = 1;
+            DoRedraw(hWindow);
+            MessageBox(NULL, L"Generated signal.", L"Action complete.",
+                MB_ICONINFORMATION | MB_OK);
+            break;
+
+        case IDC_PAGELEFT_BUTTON:
+            if (DecrementPagination() == 1) DoRedraw(hWindow);
+            break;
+
+        case IDC_PAGERIGHT_BUTTON:
+            if (IncrementPagination() == 1) DoRedraw(hWindow);
+            break;
+    }
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -184,7 +212,8 @@ void AddMenus(HWND hwnd) {
 	hMenubar = CreateMenu();
 
 	hMenuFile = CreateMenu();
-	AppendMenuW(hMenuFile, MF_STRING, IDM_FILE_OPEN, L"&Open");
+    AppendMenuW(hMenuFile, MF_STRING, IDM_FILE_OPEN, L"&Open");
+	AppendMenuW(hMenuFile, MF_STRING, IDM_FILE_SAVE, L"&Save");
 	AppendMenuW(hMenuFile, MF_SEPARATOR, 0, NULL);
 	AppendMenuW(hMenuFile, MF_STRING, IDM_FILE_QUIT, L"&Quit");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenuFile, L"&File");
