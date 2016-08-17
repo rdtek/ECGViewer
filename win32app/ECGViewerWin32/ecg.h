@@ -16,11 +16,11 @@ int padding_x;
 int sampleFrequency;
 
 void GenerateSignal(HeartSignal* ptr_signal);
-void GenerateFlatLine(HeartSignal* ptr_signal, size_t length);
-void GeneratePWave(HeartSignal* ptr_signal);
+void GenerateLine(HeartSignal* ptr_signal, size_t length, double gradient);
 void GenerateQRSComplex(HeartSignal* ptr_signal);
-void GenerateTWave(HeartSignal* ptr_signal);
-double NormalDistributionPDF(double x, double mu, double variance);
+double CalculateGausianPDF(double x, double mu, double variance);
+void GenerateGausianCurve(HeartSignal* ptr_signal, double mu, double variance, double scaleFactor);
+
 void SetECGSignal(HeartSignal* signal);
 void DrawGrid(HDC hdc);
 void DrawGridLines(HDC hdc, int interval);

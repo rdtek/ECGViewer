@@ -13,15 +13,6 @@ void InitECG(HWND hWindow) {
     m_hWindow = hWindow;
 }
 
-// Name:   NormalDistributionPDF
-// Desc:   Calculate the Probability Density Function (y) value 
-//         for a normal distribution curve 
-double NormalDistributionPDF(double x, double mu, double variance) {
-    double oneOverSqrt2VarPi = 1 / sqrt(2 * variance * M_PI);
-    double expo = exp(-1 * pow((x - mu), 2) / (2 * pow(variance, 2)));
-    return oneOverSqrt2VarPi * expo;
-}
-
 // Name:   GenerateSignal
 // Desc:   Generate a simulated ECG signal.
 void GenerateSignal(HeartSignal* ptr_signal) {
@@ -33,114 +24,67 @@ void GenerateSignal(HeartSignal* ptr_signal) {
     //Generate each part of the heartbeat waveform
     for (size_t i = 0; i < numBeats; i++) {
 
-        //1. Flatline
-        GenerateFlatLine(ptr_signal, 300);
+        //1. *** Flatline
+        GenerateLine(ptr_signal, 300, 0);
 
-        //2. P wave
-        GeneratePWave(ptr_signal);
+        //2. *** P wave: use Gausian Distribution to generate P-Wave curve
+        GenerateGausianCurve(ptr_signal, 0, 2, 200);
 
-        //3. PR segment
-        GenerateFlatLine(ptr_signal, 50);
+        //3. *** PR segment
+        GenerateLine(ptr_signal, 50, 0);
 
-        //4. QRS complex
-        GenerateQRSComplex(ptr_signal);
+        //4. *** QRS complex
+        GenerateLine(ptr_signal, 50, -2);  //'Q' part - dip down
+        GenerateLine(ptr_signal, 20, 25);  //'R' part - jump up
+        GenerateLine(ptr_signal, 22, -25); //'S' part - jump down
+        GenerateLine(ptr_signal, 20, 7);   //Come back to base line
 
-        //5. ST segment
-        GenerateFlatLine(ptr_signal, 50);
+        //5. *** ST segment
+        GenerateLine(ptr_signal, 50, 0);
 
-        //6. T wave
-        GenerateTWave(ptr_signal);
+        //6. *** T wave: use Gausian Distribution to generate T-Wave curve
+        GenerateGausianCurve(ptr_signal, 0, 2, 200);
     }
 
 }
 
-// Name:   GenerateFlatLine
-// Desc:   Generate a flat line segment of the heartbeat signal.
-void GenerateFlatLine(HeartSignal* ptr_signal, size_t length) {
+// Name:   GenerateLine
+// Desc:   Generates a line with a gradient (rise or fall or flat)
+void GenerateLine(HeartSignal* ptr_signal, size_t length, double rise) {
+
     size_t maxLength = 1000;
-    int sampleIndex = ptr_signal->numberOfSamples - 1;
+    int iCurrent = ptr_signal->numberOfSamples;
+
     for (size_t i = 0; i < length && i < maxLength; i++) {
-        ptr_signal->samples[sampleIndex] = 0;
+        int iPrevious = iCurrent - 1 >= 0 ? iCurrent - 1 : 0;
+        double previousYValue = ptr_signal->samples[iPrevious];
+        ptr_signal->samples[iCurrent] = previousYValue + rise;
+        //log_dbl("Live val: ", ptr_signal->samples[iCurrent]);
         ptr_signal->numberOfSamples++;
-        sampleIndex++;
+        iCurrent++;
     }
 }
 
-// Name:   GeneratePWave
-// Desc:   Generate the P-Wave segment of the heartbeat signal.
-void GeneratePWave(HeartSignal* ptr_signal) {
-    int sampleIndex = ptr_signal->numberOfSamples - 1;
-    double scaleFactor = 200;
+// Name:   CalculateGausianPDF
+// Desc:   Calculates the Probability Density Function value for position
+//         on the curve.
+double CalculateGausianPDF(double x, double mu, double variance) {
+    double oneOverSqrt2VarPi = 1 / sqrt(2 * variance * M_PI);
+    double expo = exp(-1 * pow((x - mu), 2) / (2 * pow(variance, 2)));
+    return oneOverSqrt2VarPi * expo;
+}
 
-    //Use Normal Distribution to generate P-Wave curve
+// Name:   GenerateGausianCurve
+// Desc:   Generates a Gausian Distribution curve
+void GenerateGausianCurve(HeartSignal* ptr_signal, double mu, double variance, double scaleFactor) {
+    int sampleIndex = ptr_signal->numberOfSamples;
     for (double x = -3; x <= 3; x += 0.1) {
-        double xpdf = scaleFactor * NormalDistributionPDF(x, 0, 2);
+        double xpdf = scaleFactor * CalculateGausianPDF(x, mu, variance);
         ptr_signal->samples[sampleIndex] = xpdf;
         ptr_signal->numberOfSamples++;
         sampleIndex++;
     }
 }
-
-// Name:   GenerateQRSComplex
-// Desc:   Generate the QRS part of the heartbeat signal.
-void GenerateQRSComplex(HeartSignal* ptr_signal) {
-
-    int sampleIndex = ptr_signal->numberOfSamples;
-
-    //'Q' part - dip down
-    for (size_t i = 0; i < 50; i++) {
-        double nextY = ptr_signal->samples[sampleIndex - 1] - 2;
-        ptr_signal->samples[sampleIndex] = nextY;
-        ptr_signal->numberOfSamples++;
-        sampleIndex++;
-    }
-
-    //'R' part - jump up
-    //Use Normal Distribution to generate R-Wave spike
-    //TODO: or should I simply use a steep linear gradient?
-    double scaleFactor = 800;
-    for (double x = -3; x <= 3; x += 0.1) {
-        double nextY = scaleFactor * NormalDistributionPDF(x, 0, 1);
-        ptr_signal->samples[sampleIndex] = nextY;
-        ptr_signal->numberOfSamples++;
-        sampleIndex++;
-    }
-
-    //'S' part - dip down below baseline
-    double sSteepness = 9;
-    for (size_t i = 0; i < 20; i++) {
-        double nextY = ptr_signal->samples[sampleIndex - 1] - sSteepness;
-        ptr_signal->samples[sampleIndex] = nextY;
-        ptr_signal->numberOfSamples++;
-        sampleIndex++;
-    }
-
-    //Come back up to baseline
-    for (size_t i = 0; i < 20; i++) {
-        double nextY = ptr_signal->samples[sampleIndex - 1] + sSteepness;
-        ptr_signal->samples[sampleIndex] = nextY;
-        ptr_signal->numberOfSamples++;
-        sampleIndex++;
-    }
-
-    //ptr_signal->samples[sampleIndex] = 
-}
-
-// Name:   GenerateTWave
-// Desc:   Generate the T-Wave segment of the heartbeat signal.
-void GenerateTWave(HeartSignal* ptr_signal) {
-
-    int sampleIndex = ptr_signal->numberOfSamples;
-    //Use Normal Distribution to generate T-Wave curve
-    double scaleFactor = 200;
-    for (double x = -3; x <= 3; x += 0.1) {
-        double nextY = scaleFactor * NormalDistributionPDF(x, 0, 2);
-        ptr_signal->samples[sampleIndex] = nextY;
-        ptr_signal->numberOfSamples++;
-        sampleIndex++;
-    }
-}
-
 
 void SetECGSignal(HeartSignal* signal) {
     m_heartSignal = signal;
