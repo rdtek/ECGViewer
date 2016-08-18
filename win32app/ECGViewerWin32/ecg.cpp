@@ -125,25 +125,25 @@ void DrawGrid(HDC hDeviceContext){
     //Setup drawing pens
     HPEN   hBigGridPen;
     HPEN   hSmallGridPen;
-	HBRUSH hBgBrush; 
-	RECT   rect;
+    HBRUSH hBgBrush; 
+    RECT   rect;
 
-	hBgBrush      = CreateSolidBrush(RGB(255, 255, 255));
+    hBgBrush      = CreateSolidBrush(RGB(255, 255, 255));
     hSmallGridPen = CreatePen(PS_SOLID, 1, RGB(255, 192, 192));
     hBigGridPen   = CreatePen(PS_SOLID, 1, RGB(240, 128, 128));
     
-	if (GetClientRect(m_hWindow, &rect)) {
-		//Fill background
-		FillRect(hDeviceContext, &rect, hBgBrush);
+    if (GetClientRect(m_hWindow, &rect)) {
+        //Fill background
+        FillRect(hDeviceContext, &rect, hBgBrush);
 
-		//Small grid lines
-		SelectObject(hDeviceContext, hSmallGridPen);
-		DrawGridLines(hDeviceContext, 10);
+        //Small grid lines
+        SelectObject(hDeviceContext, hSmallGridPen);
+        DrawGridLines(hDeviceContext, 10);
 
-		//Big grid lines
-		SelectObject(hDeviceContext, hBigGridPen);
-		DrawGridLines(hDeviceContext, 50);
-	}
+        //Big grid lines
+        SelectObject(hDeviceContext, hBigGridPen);
+        DrawGridLines(hDeviceContext, 50);
+    }
 }
  
 // Name:   DrawGridLines
@@ -196,7 +196,7 @@ void DrawSignal(HDC hDeviceContext){
     int pointsOneTrack  = PointsPerTrack();
     int trackNum        = 0;
 
-	SelectObject(hDeviceContext, hSignalPen);
+    SelectObject(hDeviceContext, hSignalPen);
     
     if(GetClientRect(m_hWindow, &windowRect)) {
 
