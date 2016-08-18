@@ -1,0 +1,39 @@
+﻿<Window x:Class="ECGViewerWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ECGViewerWPF"
+        xmlns:my="clr-namespace:ECGViewerWPF"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Menu Name="MainMenu" Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,5" Padding="2">
+            <MenuItem Name="MenuItemFile" Header="_File">
+                <MenuItem Header="_Open" Click="MenuItem_FileOpen_Click"/>
+                <MenuItem Header="_Close" Click="MenuItem_FileClose_Click"/>
+                <MenuItem Header="_Save" Click="MenuItem_FileSave_Click"/>
+                <MenuItem Header="_Exit" Click="MenuItem_FileExit_Click"/>
+            </MenuItem>
+            <MenuItem Name="MenuItemTools" Header="_Tools">
+            </MenuItem>
+        </Menu>
+
+        <ScrollViewer Grid.Row="1" Grid.ColumnSpan="3" Margin="5">
+            <my:ECGView x:Name="ECG"/>
+        </ScrollViewer>
+
+    </Grid>
+</Window>
