@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <commctrl.h>
 
 typedef struct { int width; int height; } WindowSize;
 
@@ -29,3 +30,6 @@ int GetRectHeight
 
 HWND CreateButtonW
     (HWND hWindow, int btnId, LPCWSTR lpButtonText, int x, int y, int width, int height);
+
+HWND CreateToolTip
+    (int toolID, HINSTANCE hInst, HWND hWindow, PWSTR pszText);

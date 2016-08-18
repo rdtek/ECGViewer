@@ -58,3 +58,37 @@ HWND CreateButtonW(HWND hWindow, int btnId, LPCWSTR lpButtonText, int x, int y, 
         x, y, width, height, hWindow, (HMENU)btnId,
         GetModuleHandle(NULL), NULL);
 }
+
+HWND CreateToolTip(int toolID, HINSTANCE hInst, HWND hWindow, PWSTR pszText)
+{
+    if (!toolID || !hWindow || !pszText)
+    {
+        return FALSE;
+    }
+    // Get the window of the tool.
+    HWND hwndTool = GetDlgItem(hWindow, toolID);
+
+    // Create the tooltip. g_hInst is the global instance handle.
+    HWND hwndTip = CreateWindowEx(NULL, TOOLTIPS_CLASS, NULL,
+        WS_POPUP | TTS_ALWAYSTIP | TTS_BALLOON,
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        hWindow, NULL, hInst, NULL);
+
+    if (!hwndTool || !hwndTip)
+    {
+        return (HWND)NULL;
+    }
+
+    // Associate the tooltip with the tool.
+    TOOLINFO toolInfo = { 0 };
+    toolInfo.cbSize = sizeof(toolInfo);
+    toolInfo.hwnd = hWindow;
+    toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+    toolInfo.uId = (UINT_PTR)hwndTool;
+    toolInfo.lpszText = pszText;
+    
+    if(!SendMessage(hwndTip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo))
+        MessageBox(0, TEXT("Failed: TTM_ADDTOOL"), 0, 0);
+
+    return hwndTip;
+}

@@ -14,9 +14,9 @@ VOID CALLBACK PaintTimerProc(HWND hwnd, UINT uMessage, UINT_PTR uEventId, DWORD 
 //Window Procedure - handles window messages
 LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	PAINTSTRUCT ps;
-	HDC         hDeviceContext;
-	RECT        windowRect;
+	PAINTSTRUCT             ps;
+	HDC                     hDeviceContext;
+	RECT                    windowRect;
 
     switch (msg)
     {
@@ -25,10 +25,16 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
             AddMenus(hWindow);
             int windowWidth = GetWindowWidth(hWindow);
             
+            //Buttons
             hBtnPageLeft = CreateButtonW(hWindow, IDC_PAGELEFT_BUTTON, 
                 L"<", windowWidth - 100, 220, 100, 24);
             hBtnPageRight = CreateButtonW(hWindow, IDC_PAGERIGHT_BUTTON, 
                 L">", 50, 220, 100, 24);
+
+            //Tooltips
+            HINSTANCE hi = (HINSTANCE)GetWindowLong(hWindow, GWL_HINSTANCE);
+            CreateToolTip(IDC_PAGELEFT_BUTTON, hi, hWindow, L"Show previous page.");
+            CreateToolTip(IDC_PAGERIGHT_BUTTON, hi, hWindow, L"Show next page.");
 
             InitECG(hWindow);
 
@@ -98,7 +104,7 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void SetWindowTitle(HWND hWindow, LPWSTR extraTitle) {
     //Set the window title text
-    std::wstring wsFileName(extraTitle);
+    std::wstring wsFileName(extraTitle); 
     std::wstring wsWindowTitle = std::wstring(MYWINDOWNAME) + std::wstring(L" ") + wsFileName;
     SetWindowText(hWindow, wsWindowTitle.c_str());
 }
@@ -150,11 +156,15 @@ void HandleWMCommand(HWND hWindow, WORD w) {
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow)
 {
-	WNDCLASSEX wc;
-	HWND hwnd;
-	MSG Msg;
-
+	WNDCLASSEX           wc;
+	HWND                 hwnd;
+	MSG                  Msg;
+    INITCOMMONCONTROLSEX structInitCommCtl;
 	LPCWSTR szAppName = L"ECG Viewer";
+
+    structInitCommCtl.dwICC = ICC_TAB_CLASSES;
+    structInitCommCtl.dwSize = sizeof(INITCOMMONCONTROLSEX);
+    BOOL initControls = InitCommonControlsEx(&structInitCommCtl);
 
 	//Registering the Window Class
 	wc.cbSize           = sizeof(WNDCLASSEX);

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <windows.h>
 #include <string>
-#include "appconstants.h"
+#include "appinit.h"
 #include "windowtools.h"
 #include "logging.h"
 #include "ecg.h"

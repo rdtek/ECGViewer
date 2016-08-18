@@ -149,7 +149,7 @@
     <ClCompile Include="wndmain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="appconstants.h" />
+    <ClInclude Include="appinit.h" />
     <ClInclude Include="ecg.h" />
     <ClInclude Include="logging.h" />
     <ClInclude Include="signalfileio.h" />

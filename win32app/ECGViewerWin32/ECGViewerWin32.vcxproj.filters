@@ -47,7 +47,7 @@
     <ClInclude Include="ecg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="appconstants.h">
+    <ClInclude Include="appinit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

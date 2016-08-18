@@ -2,7 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <windows.h>
 #include <math.h>
-#include "appconstants.h"
+#include "appinit.h"
 #include "windowtools.h"
 #include "logging.h"
 
