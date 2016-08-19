@@ -20,31 +20,18 @@ void GenerateSignal(HeartSignal* ptr_signal) {
     ptr_signal->numberOfSamples = 0;
     size_t numBeats = 50;
 
-    //Generate each part of the heartbeat waveform
+    //Generate each part of the heartbeat waveform P-Q-R-S
     for (size_t i = 0; i < numBeats; i++) {
-
-        //1. *** Flatline
-        GenerateLine(ptr_signal, 300, 0);
-
-        //2. *** P wave: use Gausian Distribution to generate P-Wave curve
-        GenerateGausianCurve(ptr_signal, 0, 2, 200);
-
-        //3. *** PR segment
-        GenerateLine(ptr_signal, 50, 0);
-
-        //4. *** QRS complex
-        GenerateLine(ptr_signal, 50, -2);  //'Q' part - dip down
-        GenerateLine(ptr_signal, 20, 25);  //'R' part - jump up
-        GenerateLine(ptr_signal, 22, -25); //'S' part - jump down
-        GenerateLine(ptr_signal, 20, 7);   //Come back to base line
-
-        //5. *** ST segment
-        GenerateLine(ptr_signal, 50, 0);
-
-        //6. *** T wave: use Gausian Distribution to generate T-Wave curve
-        GenerateGausianCurve(ptr_signal, 0, 2, 200);
+        GenerateLine(ptr_signal, 300, 0);             // Flatline
+        GenerateGausianCurve(ptr_signal, 0, 2, 200);  // P-Wave
+        GenerateLine(ptr_signal, 50, 0);              // PR segment
+        GenerateLine(ptr_signal, 50, -2);             // 'Q' - dip down
+        GenerateLine(ptr_signal, 20, 25);             // 'R' - jump up
+        GenerateLine(ptr_signal, 22, -25);            // 'S' - jump down
+        GenerateLine(ptr_signal, 20, 7);              // Back up to baseline
+        GenerateLine(ptr_signal, 50, 0);              // ST segment
+        GenerateGausianCurve(ptr_signal, 0, 2, 200);  // T-Wave
     }
-
 }
 
 // Name:   GenerateLine
@@ -125,25 +112,25 @@ void DrawGrid(HDC hDeviceContext){
     //Setup drawing pens
     HPEN   hBigGridPen;
     HPEN   hSmallGridPen;
-	HBRUSH hBgBrush; 
-	RECT   rect;
+    HBRUSH hBgBrush; 
+    RECT   rect;
 
-	hBgBrush      = CreateSolidBrush(RGB(255, 255, 255));
+    hBgBrush      = CreateSolidBrush(RGB(255, 255, 255));
     hSmallGridPen = CreatePen(PS_SOLID, 1, RGB(255, 192, 192));
     hBigGridPen   = CreatePen(PS_SOLID, 1, RGB(240, 128, 128));
     
-	if (GetClientRect(m_hWindow, &rect)) {
-		//Fill background
-		FillRect(hDeviceContext, &rect, hBgBrush);
+    if (GetClientRect(m_hWindow, &rect)) {
+        //Fill background
+        FillRect(hDeviceContext, &rect, hBgBrush);
 
-		//Small grid lines
-		SelectObject(hDeviceContext, hSmallGridPen);
-		DrawGridLines(hDeviceContext, 10);
+        //Small grid lines
+        SelectObject(hDeviceContext, hSmallGridPen);
+        DrawGridLines(hDeviceContext, 10);
 
-		//Big grid lines
-		SelectObject(hDeviceContext, hBigGridPen);
-		DrawGridLines(hDeviceContext, 50);
-	}
+        //Big grid lines
+        SelectObject(hDeviceContext, hBigGridPen);
+        DrawGridLines(hDeviceContext, 50);
+    }
 }
  
 // Name:   DrawGridLines
@@ -196,7 +183,7 @@ void DrawSignal(HDC hDeviceContext){
     int pointsOneTrack  = PointsPerTrack();
     int trackNum        = 0;
 
-	SelectObject(hDeviceContext, hSignalPen);
+    SelectObject(hDeviceContext, hSignalPen);
     
     if(GetClientRect(m_hWindow, &windowRect)) {
 
