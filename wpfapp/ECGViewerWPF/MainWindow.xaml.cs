@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Collections.Generic;
+using LibEDF_CSharp;
 
 namespace ECGViewerWPF
 {
@@ -45,9 +46,17 @@ namespace ECGViewerWPF
                     }
                 }
 
-                if (ext.ToUpper() == "EDF")
-                {
-                    //TODO: use COM object to read EDF file
+                if (ext.ToUpper() == "EDF") {
+                    var edfFile = new EDFFile();
+                    edfFile.Open(fileName);
+                    if(edfFile.Signals.Length >= 1) {
+                        for (int i = 0; i < edfFile.Signals[0].Samples.Length; i++) {
+                            //NOTE: Resolution may be different for each ECG sensor
+                            float resolution = 1.8f; 
+                            var sample = edfFile.Signals[0].Samples[i] * resolution;
+                            signalSamples.Add(sample);
+                        }
+                    }
                 }
             }
 
