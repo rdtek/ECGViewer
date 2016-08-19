@@ -31,8 +31,8 @@ namespace ECGViewerWPF
         //Standard big square is 1 second, 25mm, 1mV. (25mm * 96dpi / mmInOneInch)
         const float DPI = 96.0f;
         const float MM_PER_BIG_SQUARE = 25.0f;
-        const float MM_PER_INCH = 25.4f;    //25.4 millimetres = 1 inch.
-        const int MS_PER_BIG_SQUARE = 1000; //1 big square = 1 second = 1000ms.
+        const float MM_PER_INCH = 25.4f;       //25.4 millimetres = 1 inch.
+        const int MS_PER_BIG_SQUARE = 1000;    //1 big square = 1 second = 1000ms.
 
         int ECG_BIG_SQUARE_PX;
         int Y_ZERO_PX = 250;
@@ -49,13 +49,13 @@ namespace ECGViewerWPF
 
         private double m_width = 0;
         private double m_height = 0;
-        DispatcherTimer m_resizeTimer = new DispatcherTimer
-        {
+
+        DispatcherTimer m_resizeTimer = new DispatcherTimer {
             Interval = new TimeSpan(0, 0, 0, 0, 100),
             IsEnabled = false
         };
 
-        private short[] m_signalSamples;
+        private double[] m_signalSamples;
         private BitmapImage[] m_signalBitmaps;
         private SignalAnalysis m_analysisResults;
         private EcgAnnotation[] m_annotations;
@@ -270,7 +270,7 @@ namespace ECGViewerWPF
             TotalPages = CalculateTotalPages();
         }
 
-        public void SetSignalData(short[] signalData, bool updateGraphics = true)
+        public void SetSignalData(double[] signalData, bool updateGraphics = true)
         {
             Clear();
             m_signalSamples = signalData;
@@ -452,7 +452,7 @@ namespace ECGViewerWPF
             return bmp;
         }
 
-        private System.Windows.Point[] GetSignalPoints(short[] signalData, int start = 0, int length = -1)
+        private System.Windows.Point[] GetSignalPoints(double[] signalData, int start = 0, int length = -1)
         {
             var points = new List<System.Windows.Point>();
 
