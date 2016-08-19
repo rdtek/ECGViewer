@@ -26,21 +26,20 @@ namespace ECGViewerWPF
             }
         }
 
-        private double[] ReadSignalFile(string fileName)
+        private float[] ReadSignalFile(string fileName)
         {
-            var signalSamples = new List<double>();
+            var signalSamples = new List<float>();
 
             if (File.Exists(fileName))
             {
                 string ext = Path.GetExtension(fileName).Replace(".", "");
 
-                //TODO: read the signal data from the file
                 if (ext.ToUpper() == "CSV" || ext.ToUpper() == "TXT") {
                     using (var reader = new StreamReader(fileName)) {
                         string line;
                         while ((line = reader.ReadLine()) != null) {
-                            double sample;
-                            if (double.TryParse(line, out sample))
+                            float sample;
+                            if (float.TryParse(line, out sample))
                                 signalSamples.Add(sample);
                         }
                     }

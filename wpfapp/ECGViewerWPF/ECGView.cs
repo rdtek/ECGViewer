@@ -55,7 +55,7 @@ namespace ECGViewerWPF
             IsEnabled = false
         };
 
-        private double[] m_signalSamples;
+        private float[] m_signalSamples;
         private BitmapImage[] m_signalBitmaps;
         private SignalAnalysis m_analysisResults;
         private EcgAnnotation[] m_annotations;
@@ -270,7 +270,7 @@ namespace ECGViewerWPF
             TotalPages = CalculateTotalPages();
         }
 
-        public void SetSignalData(double[] signalData, bool updateGraphics = true)
+        public void SetSignalData(float[] signalData, bool updateGraphics = true)
         {
             Clear();
             m_signalSamples = signalData;
@@ -452,7 +452,7 @@ namespace ECGViewerWPF
             return bmp;
         }
 
-        private System.Windows.Point[] GetSignalPoints(double[] signalData, int start = 0, int length = -1)
+        private System.Windows.Point[] GetSignalPoints(float[] signalData, int start = 0, int length = -1)
         {
             var points = new List<System.Windows.Point>();
 
