@@ -28,6 +28,7 @@
                 <MenuItem Header="_Exit" Click="MenuItem_FileExit_Click"/>
             </MenuItem>
             <MenuItem Name="MenuItemTools" Header="_Tools">
+                <MenuItem Header="_Generate_Signal" Click="MenuItem_GenerateSignal_Click"/>
             </MenuItem>
         </Menu>
 

@@ -13,6 +13,12 @@ namespace ECGViewerWPF
             InitializeComponent();
         }
 
+        private void MenuItem_GenerateSignal_Click(object sender, RoutedEventArgs e)
+        {
+            float[] signalSamples = SignalGenerator.GenerateSignal();
+            ECG.SetSignalData(signalSamples);
+        }
+
         private void MenuItem_FileOpen_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog fd = new OpenFileDialog();
